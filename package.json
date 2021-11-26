@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test:config": "jest --showConfig",
-    "test": "jest --verbose --detectOpenHandles --watchAll",
+    "test": "NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
     "tsw": "tsc -w",
     "tsc": "tsc",
     "start": "sh dev.sh",

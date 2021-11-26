@@ -15,9 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = __importDefault(require("../app"));
 describe("test the hello route", () => {
-    test("should get some html from the route", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("should get 200 status code", () => __awaiter(void 0, void 0, void 0, function* () {
         const res = yield (0, supertest_1.default)(app_1.default).get("/hello");
         expect(res.statusCode).toBe(200);
+    }));
+    test("we should get <h1>Hello 123123</h1> text as html from the response", () => __awaiter(void 0, void 0, void 0, function* () {
+        const res = yield (0, supertest_1.default)(app_1.default).get("/hello");
+        expect(res.text).toBe("<h1>Hello 123123</h1>");
     }));
 });
 //# sourceMappingURL=hello.test.js.map
