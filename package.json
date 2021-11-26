@@ -1,0 +1,45 @@
+{
+  "name": "learning-typegoose",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:config": "jest --showConfig",
+    "test": "jest --verbose --detectOpenHandles",
+    "tsw": "tsc -w",
+    "tsc": "tsc",
+    "start": "sh dev.sh",
+    "concurrent": "NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dj-Viking/learning-typegoose.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dj-Viking/learning-typegoose/issues"
+  },
+  "homepage": "https://github.com/Dj-Viking/learning-typegoose#readme",
+  "dependencies": {
+    "@typegoose/typegoose": "^9.2.0",
+    "@types/express": "^4.17.13",
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "babel-jest": "^27.3.1",
+    "concurrently": "^6.4.0",
+    "eslint": "^8.3.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "express": "^4.17.1",
+    "if-env": "^1.0.4",
+    "jest": "^27.3.1",
+    "mongoose": "^6.0.13",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.5.0",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.5.2"
+  }
+}
