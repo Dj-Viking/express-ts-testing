@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const router = (0, express_1.Router)();
-router.use("/", (_, res) => {
+router.use("/hello", (_, res) => {
     return res.status(200).send("<h1>Hello 123123</h1>");
 });
 router.use((_req, res) => {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-router.use("/", (_, res) => {
+router.use("/hello", (_, res) => {
   return res.status(200).send("<h1>Hello 123123</h1>");
 });
 

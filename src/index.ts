@@ -1,13 +1,9 @@
 import { mongoose } from "@typegoose/typegoose";
 import { IS_PROD } from "./constants";
-import express from "express";
-import router from "./router";
-const app = express();
+import app from "./app";
 const PORT = process.env.PORT || 4000;
 
 console.log("what is node env", process.env.NODE_ENV);
-
-app.use(router);
 
 mongoose.connect(process.env.MONGO_URI || "mongodb://localhost/rest-cats");
 
