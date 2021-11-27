@@ -2,7 +2,7 @@ import User from "../models/User";
 import { Request, Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
-const { createUser } = UserService;
+const { createUser, updateUserById } = UserService;
 export const UserController = {
   createUser: async function (
     req: Request,
@@ -44,6 +44,22 @@ export const UserController = {
     } catch (error) {
       return res.status(500).json({
         error: `error when getting all users ${error}`,
+      });
+    }
+  },
+  getUserById: {},
+  updateUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any>> {
+    try {
+      console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body);
+      const updatedUser = await updateUserById(req.body);
+      console.log("updated user service response", { user: updatedUser });
+      return res.status(204).json({ user: updatedUser });
+    } catch (error) {
+      return res.status(500).json({
+        error: `error when updating a user by id ${error}`,
       });
     }
   },
