@@ -1,11 +1,22 @@
-import { prop, getModelForClass } from "@typegoose/typegoose";
+import { prop, getModelForClass, plugin } from "@typegoose/typegoose";
+import mongooseUniqueValidator from "mongoose-unique-validator";
 
+@plugin(mongooseUniqueValidator)
 class UserClass {
-  @prop()
+  @prop({ required: true, unique: true })
   public username!: string;
 
-  @prop()
+  @prop({ required: true, unique: true })
   public email!: string;
+
+  @prop({ required: true, select: false })
+  public password!: string;
+
+  @prop()
+  public createdAt: Date;
+
+  @prop()
+  public updatedAt: Date;
 }
 
 const User = getModelForClass(UserClass);

@@ -1,6 +1,6 @@
 import { IS_PROD } from "./constants";
 import app from "./app";
-import db from "./db";
+import db from "./db/connection";
 const PORT = process.env.PORT || 4000;
 
 console.log("what is node env", process.env.NODE_ENV);

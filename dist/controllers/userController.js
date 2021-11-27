@@ -14,17 +14,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const User_1 = __importDefault(require("../models/User"));
+const services_1 = require("../db/services");
+const formatError_1 = require("../utils/formatError");
+const { createUser } = services_1.UserService;
 exports.UserController = {
     createUser: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("user create request");
+            const { username, email, password } = req.body;
             try {
-                const createdUser = yield User_1.default.create(req.body);
-                return res.status(201).json({ user: createdUser });
+                const user = yield createUser({
+                    username,
+                    email,
+                    password,
+                });
+                return res.status(201).json({ user });
             }
             catch (error) {
+                const { username, email, password } = error.errors;
+                if (Boolean(username || email || password)) {
+                    return res.status(400).json({
+                        error: `${(0, formatError_1.formatCreateUserError)({
+                            username,
+                            email,
+                            password,
+                        })}`,
+                    });
+                }
                 return res.status(500).json({
-                    error: `error when creating a user ${error.message}`,
+                    error: `error when creating a user:\n ${error}`,
                 });
             }
         });
@@ -38,7 +55,7 @@ exports.UserController = {
             }
             catch (error) {
                 return res.status(500).json({
-                    error: `error when getting all users ${error.message}`,
+                    error: `error when getting all users ${error}`,
                 });
             }
         });
