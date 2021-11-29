@@ -3,6 +3,15 @@ export interface ICreateUser {
   email: string;
   password: string;
 }
+
+export interface ICreateCardPayload extends Object {
+  frontsideText: string;
+  frontsideLanguage: string;
+  frontsidePicture: string;
+  backsideText: string;
+  backsideLanguage: string;
+  backsidePicture: string;
+}
 export type ICreateUserResponse = {
   username: string;
   email: string;
