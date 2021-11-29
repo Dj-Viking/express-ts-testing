@@ -53,7 +53,6 @@ export const UserService = {
     const { _id, username, email } = args;
     try {
       const updateObj = {
-        _id,
         username,
         email,
       } as IUpdateUserObject;
@@ -73,7 +72,9 @@ export const UserService = {
           break;
       }
 
-      const updatedUser = await User.findByIdAndUpdate(updateObj, {
+      console.log("trimmed update object", updateObj);
+
+      const updatedUser = await User.findByIdAndUpdate(_id, updateObj, {
         new: true,
         runValidators: true,
       });
@@ -86,8 +87,8 @@ export const UserService = {
         updatedAt: updatedUser?.updatedAt,
       } as IUpdateUserResponse;
     } catch (error) {
-      console.log("error when updating user: ", error);
-      return error;
+      console.log("error when updating user: ", error, error.id);
+      throw error.id || error;
     }
   },
 };

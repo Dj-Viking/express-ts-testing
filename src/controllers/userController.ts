@@ -52,11 +52,26 @@ export const UserController = {
     req: Request,
     res: Response
   ): Promise<Record<string, any>> {
+    // TODO make middleware to verify if a user exists with that ID
+    const foundUser = await User.findOne({ _id: req.params.id });
+    if (foundUser === null) {
+      return res.status(404).json({ message: "user not found" });
+    }
     try {
-      console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body);
-      const updatedUser = await updateUserById(req.body);
+      console.log(
+        "\x1b[33m",
+        "request to update a user",
+        "\x1b[00m",
+        req.body,
+        req.params
+      );
+      const updatedUser = await updateUserById({
+        _id: req.params.id,
+        username: req.body.username,
+        email: req.body.email,
+      });
       console.log("updated user service response", { user: updatedUser });
-      return res.status(204).json({ user: updatedUser });
+      return res.status(200).json({ user: updatedUser });
     } catch (error) {
       return res.status(500).json({
         error: `error when updating a user by id ${error}`,

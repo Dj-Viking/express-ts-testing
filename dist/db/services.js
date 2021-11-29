@@ -60,7 +60,6 @@ exports.UserService = {
             const { _id, username, email } = args;
             try {
                 const updateObj = {
-                    _id,
                     username,
                     email,
                 };
@@ -77,7 +76,8 @@ exports.UserService = {
                     default:
                         break;
                 }
-                const updatedUser = yield User_1.default.findByIdAndUpdate(updateObj, {
+                console.log("trimmed update object", updateObj);
+                const updatedUser = yield User_1.default.findByIdAndUpdate(_id, updateObj, {
                     new: true,
                     runValidators: true,
                 });
@@ -91,8 +91,8 @@ exports.UserService = {
                 };
             }
             catch (error) {
-                console.log("error when updating user: ", error);
-                return error;
+                console.log("error when updating user: ", error, error.id);
+                throw error.id || error;
             }
         });
     },

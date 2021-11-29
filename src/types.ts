@@ -17,7 +17,6 @@ export interface IUpdateUser {
   _id: string;
 }
 export interface IUpdateUserObject {
-  _id?: string;
   username?: string;
   email?: string;
 }

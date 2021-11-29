@@ -63,11 +63,19 @@ exports.UserController = {
     getUserById: {},
     updateUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const foundUser = yield User_1.default.findOne({ _id: req.params.id });
+            if (foundUser === null) {
+                return res.status(404).json({ message: "user not found" });
+            }
             try {
-                console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body);
-                const updatedUser = yield updateUserById(req.body);
+                console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body, req.params);
+                const updatedUser = yield updateUserById({
+                    _id: req.params.id,
+                    username: req.body.username,
+                    email: req.body.email,
+                });
                 console.log("updated user service response", { user: updatedUser });
-                return res.status(204).json({ user: updatedUser });
+                return res.status(200).json({ user: updatedUser });
             }
             catch (error) {
                 return res.status(500).json({

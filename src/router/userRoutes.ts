@@ -3,6 +3,9 @@ import { UserController } from "../controllers/userController";
 const router = Router();
 const { createUser, getAllUsers, updateUserById } = UserController;
 
-router.route("/").post(createUser).get(getAllUsers).put(updateUserById);
+// /user
+router.route("/").post(createUser).get(getAllUsers);
+// /user/:id
+router.route("/:id").put(updateUserById);
 
 export default router;
