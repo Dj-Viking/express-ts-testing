@@ -37,11 +37,21 @@ describe("testing some crud stuff on users", () => {
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
     }));
-    test("GET /user the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("what is user id here", newUserId);
         const getUserRes = yield (0, supertest_1.default)(app).get(`/user/${newUserId}`);
         console.log("\x1b[33m", "create response \n", JSON.stringify(getUserRes, null, 2), "\x1b[00m");
         expect(getUserRes.statusCode).toBe(200);
+    }));
+    test("PUT /user/:id update the user we just made", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app).put(`/user/${newUserId}`).send({
+            username: "updated username",
+            email: "updated email",
+        });
+        console.log("\x1b[33m", "update response \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
+        expect(updateRes.statusCode).toBe(200);
+        expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
+        expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield User_1.default.findOneAndDelete({ _id: newUserId });
