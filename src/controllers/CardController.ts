@@ -6,10 +6,8 @@ export const CardController = {
     req: Request,
     res: Response
   ): Promise<Record<string, any>> {
-    const payload = { ...req.body };
-    console.log("what is body payload on create card route", payload);
     try {
-      const createdCard = await Card.create(payload);
+      const createdCard = await Card.create({ ...req.body });
       return res.status(201).json({ card: createdCard });
     } catch (error) {
       console.error(error);

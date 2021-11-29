@@ -17,10 +17,8 @@ const Card_1 = __importDefault(require("../models/Card"));
 exports.CardController = {
     createCard: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const payload = Object.assign({}, req.body);
-            console.log("what is body payload on create card route", payload);
             try {
-                const createdCard = yield Card_1.default.create(payload);
+                const createdCard = yield Card_1.default.create(Object.assign({}, req.body));
                 return res.status(201).json({ card: createdCard });
             }
             catch (error) {
