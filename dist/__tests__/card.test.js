@@ -43,6 +43,14 @@ describe("card CRUD stuff", () => {
         expect(JSON.parse(createCardRes.text).card.frontsideText).toBe("привет");
         newCardId = JSON.parse(createCardRes.text).card._id;
     }));
+    test("PUT /card/:id update card with bogus id", () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("previous id", newCardId);
+        const bogusId = newCardId === null || newCardId === void 0 ? void 0 : newCardId.replace(newCardId[1], "f");
+        console.log("bogus id", bogusId);
+        const notFound = yield (0, supertest_1.default)(app).put(`/card/${bogusId}`);
+        expect(notFound.statusCode).toBe(404);
+        expect(JSON.parse(notFound.text).message).toBe("card not found");
+    }));
     test("PUT /card/:id update a card by it's id", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateCardRes = yield (0, supertest_1.default)(app).put(`/card/${newCardId}`).send({
             frontsideText: "updated front side text",

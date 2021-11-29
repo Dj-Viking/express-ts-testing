@@ -35,6 +35,15 @@ describe("testing some crud stuff on users", () => {
     expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
     newUserId = JSON.parse(createRes.text).user._id;
   });
+  // test not found user
+  test("GET /user/:id with a bogus object id", async () => {
+    console.log("previous id", newUserId);
+    const invalidId = newUserId?.replace(newUserId[1], "f");
+    console.log("created invalid id", invalidId);
+    const notFound = await request(app).get(`/user/${invalidId}`);
+    expect(notFound.statusCode).toBe(404);
+    expect(JSON.parse(notFound.text).message).toBe("user not found");
+  });
   // get that user we just made make sure they were made and the get user route works
   test("GET /user/:id the user we just created in the previous test", async () => {
     console.log("what is user id here", newUserId);

@@ -42,7 +42,15 @@ describe("card CRUD stuff", () => {
     expect(JSON.parse(createCardRes.text).card.frontsideText).toBe("привет");
     newCardId = JSON.parse(createCardRes.text).card._id;
   });
-
+  // checks edit card with bogus id will give correct error response
+  test("PUT /card/:id update card with bogus id", async () => {
+    console.log("previous id", newCardId);
+    const bogusId = newCardId?.replace(newCardId[1], "f");
+    console.log("bogus id", bogusId);
+    const notFound = await request(app).put(`/card/${bogusId}`);
+    expect(notFound.statusCode).toBe(404);
+    expect(JSON.parse(notFound.text).message).toBe("card not found");
+  });
   //edit card
   test("PUT /card/:id update a card by it's id", async () => {
     const updateCardRes = await request(app).put(`/card/${newCardId}`).send({

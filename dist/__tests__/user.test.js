@@ -37,6 +37,14 @@ describe("testing some crud stuff on users", () => {
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
     }));
+    test("GET /user/:id with a bogus object id", () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("previous id", newUserId);
+        const invalidId = newUserId === null || newUserId === void 0 ? void 0 : newUserId.replace(newUserId[1], "f");
+        console.log("created invalid id", invalidId);
+        const notFound = yield (0, supertest_1.default)(app).get(`/user/${invalidId}`);
+        expect(notFound.statusCode).toBe(404);
+        expect(JSON.parse(notFound.text).message).toBe("user not found");
+    }));
     test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("what is user id here", newUserId);
         const getUserRes = yield (0, supertest_1.default)(app).get(`/user/${newUserId}`);
