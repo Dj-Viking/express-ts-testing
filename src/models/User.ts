@@ -19,6 +19,8 @@ class UserClass {
   public updatedAt: Date;
 }
 
+// TODO get the model middleware set up when the user is created or updated to update the time of this action
+
 const User = getModelForClass(UserClass);
 
 export default User;

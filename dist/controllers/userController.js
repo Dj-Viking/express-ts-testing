@@ -60,7 +60,41 @@ exports.UserController = {
             }
         });
     },
-    getUserById: {},
+    getUserById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                if (foundUser === null) {
+                    return res.status(404).json({ message: "user not found" });
+                }
+                return res.status(200).json({ user: foundUser });
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ error: error.message });
+            }
+        });
+    },
+    deleteUserById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                if (foundUser === null) {
+                    return res.status(404).json({ message: "user not found" });
+                }
+                const deleteRes = yield User_1.default.findOneAndDelete({ _id: req.params.id });
+                console.log("delete response", deleteRes);
+                if (deleteRes !== null)
+                    return res.status(200).json({ message: "deleted user" });
+                else
+                    throw new Error("delete response was null, unsuccessful delete");
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ error: error.message || error });
+            }
+        });
+    },
     updateUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const foundUser = yield User_1.default.findOne({ _id: req.params.id });

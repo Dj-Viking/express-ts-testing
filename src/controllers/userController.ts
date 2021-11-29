@@ -47,7 +47,46 @@ export const UserController = {
       });
     }
   },
-  getUserById: {},
+  getUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any>> {
+    try {
+      // TODO make middleware to verify if a user exists with that ID
+      const foundUser = await User.findOne({ _id: req.params.id }).select(
+        "-__v"
+      );
+      if (foundUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      }
+      return res.status(200).json({ user: foundUser });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+  },
+  deleteUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any> | void> {
+    try {
+      // TODO make middleware to verify if a user exists with that ID
+      const foundUser = await User.findOne({ _id: req.params.id }).select(
+        "-__v"
+      );
+      if (foundUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      }
+      const deleteRes = await User.findOneAndDelete({ _id: req.params.id });
+      console.log("delete response", deleteRes);
+      if (deleteRes !== null)
+        return res.status(200).json({ message: "deleted user" });
+      else throw new Error("delete response was null, unsuccessful delete");
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message || error });
+    }
+  },
   updateUserById: async function (
     req: Request,
     res: Response

@@ -17,6 +17,7 @@ module.exports = {
   },
   ignorePatterns: [".eslintrc.js", "babel.config.js", "jest.config.ts"],
   rules: {
+    "prefer-const": "off",
     "semi": ["error", "always"],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
