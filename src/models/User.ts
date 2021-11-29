@@ -1,4 +1,5 @@
-import { pre, prop, getModelForClass, plugin } from "@typegoose/typegoose";
+import { pre, prop, getModelForClass, plugin, Ref } from "@typegoose/typegoose";
+import Card from "./Card";
 import argon2 from "argon2";
 import mongooseUniqueValidator from "mongoose-unique-validator";
 
@@ -18,6 +19,9 @@ class UserClass {
 
   @prop({ required: true, select: false })
   private password!: string;
+
+  @prop({ ref: () => typeof Card })
+  public cards?: Ref<typeof Card>[]; // This is a Reference Array
 
   @prop()
   public createdAt: Date;
