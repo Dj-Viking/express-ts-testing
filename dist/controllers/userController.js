@@ -16,7 +16,7 @@ exports.UserController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const services_1 = require("../db/services");
 const formatError_1 = require("../utils/formatError");
-const { createUser } = services_1.UserService;
+const { createUser, updateUserById } = services_1.UserService;
 exports.UserController = {
     createUser: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -56,6 +56,64 @@ exports.UserController = {
             catch (error) {
                 return res.status(500).json({
                     error: `error when getting all users ${error}`,
+                });
+            }
+        });
+    },
+    getUserById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                if (foundUser === null) {
+                    return res.status(404).json({ message: "user not found" });
+                }
+                return res.status(200).json({ user: foundUser });
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ error: error.message });
+            }
+        });
+    },
+    deleteUserById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                if (foundUser === null) {
+                    return res.status(404).json({ message: "user not found" });
+                }
+                const deleteRes = yield User_1.default.findOneAndDelete({ _id: req.params.id });
+                console.log("delete response", deleteRes);
+                if (deleteRes !== null)
+                    return res.status(200).json({ message: "deleted user" });
+                else
+                    throw new Error("delete response was null, unsuccessful delete");
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ error: error.message || error });
+            }
+        });
+    },
+    updateUserById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundUser = yield User_1.default.findOne({ _id: req.params.id });
+            if (foundUser === null) {
+                return res.status(404).json({ message: "user not found" });
+            }
+            try {
+                console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body, req.params);
+                const updatedUser = yield updateUserById({
+                    _id: req.params.id,
+                    username: req.body.username,
+                    email: req.body.email,
+                });
+                console.log("updated user service response", { user: updatedUser });
+                return res.status(200).json({ user: updatedUser });
+            }
+            catch (error) {
+                return res.status(500).json({
+                    error: `error when updating a user by id ${error}`,
                 });
             }
         });

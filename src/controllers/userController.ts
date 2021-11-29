@@ -2,7 +2,7 @@ import User from "../models/User";
 import { Request, Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
-const { createUser } = UserService;
+const { createUser, updateUserById } = UserService;
 export const UserController = {
   createUser: async function (
     req: Request,
@@ -44,6 +44,76 @@ export const UserController = {
     } catch (error) {
       return res.status(500).json({
         error: `error when getting all users ${error}`,
+      });
+    }
+  },
+  getUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any>> {
+    try {
+      // TODO make middleware to verify if a user exists with that ID
+      const foundUser = await User.findOne({ _id: req.params.id }).select(
+        "-__v"
+      );
+      if (foundUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      }
+      return res.status(200).json({ user: foundUser });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+  },
+  deleteUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any> | void> {
+    try {
+      // TODO make middleware to verify if a user exists with that ID
+      const foundUser = await User.findOne({ _id: req.params.id }).select(
+        "-__v"
+      );
+      if (foundUser === null) {
+        return res.status(404).json({ message: "user not found" });
+      }
+      const deleteRes = await User.findOneAndDelete({ _id: req.params.id });
+      console.log("delete response", deleteRes);
+      if (deleteRes !== null)
+        return res.status(200).json({ message: "deleted user" });
+      else throw new Error("delete response was null, unsuccessful delete");
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message || error });
+    }
+  },
+  updateUserById: async function (
+    req: Request,
+    res: Response
+  ): Promise<Record<string, any>> {
+    // TODO make middleware to verify if a user exists with that ID
+    const foundUser = await User.findOne({ _id: req.params.id });
+    if (foundUser === null) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    try {
+      console.log(
+        "\x1b[33m",
+        "request to update a user",
+        "\x1b[00m",
+        req.body,
+        req.params
+      );
+      const updatedUser = await updateUserById({
+        _id: req.params.id,
+        username: req.body.username,
+        email: req.body.email,
+      });
+      console.log("updated user service response", { user: updatedUser });
+      return res.status(200).json({ user: updatedUser });
+    } catch (error) {
+      return res.status(500).json({
+        error: `error when updating a user by id ${error}`,
       });
     }
   },

@@ -55,5 +55,46 @@ exports.UserService = {
             }
         });
     },
+    updateUserById: function (args) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { _id, username, email } = args;
+            try {
+                const updateObj = {
+                    username,
+                    email,
+                };
+                console.log("update obj created", updateObj);
+                switch (true) {
+                    case !_id:
+                        throw { id: `must provide an id to update a user` };
+                    case !username:
+                        delete updateObj.username;
+                        break;
+                    case !email:
+                        delete updateObj.email;
+                        break;
+                    default:
+                        break;
+                }
+                console.log("trimmed update object", updateObj);
+                const updatedUser = yield User_1.default.findByIdAndUpdate(_id, updateObj, {
+                    new: true,
+                    runValidators: true,
+                });
+                console.log("updated user db response", updatedUser);
+                return {
+                    _id: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id,
+                    username: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.username,
+                    email: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.email,
+                    createdAt: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.createdAt,
+                    updatedAt: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.updatedAt,
+                };
+            }
+            catch (error) {
+                console.log("error when updating user: ", error, error.id);
+                throw error.id || error;
+            }
+        });
+    },
 };
 //# sourceMappingURL=services.js.map

@@ -1,5 +1,18 @@
 import request from "supertest";
-import app from "../app";
+import mongoose from "mongoose";
+import createServer from "../app";
+import { LOCAL_DB_URL } from "../constants";
+
+beforeEach((done) => {
+  mongoose.connect(LOCAL_DB_URL, {}, () => done());
+});
+
+afterEach((done) => {
+  mongoose.connection.db.dropDatabase(() => {
+    mongoose.connection.close(() => done());
+  });
+});
+const app = createServer();
 
 describe("test the hello route", () => {
   test("should get 200 status code", async () => {
