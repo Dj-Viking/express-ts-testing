@@ -3,22 +3,22 @@ import User from "./User";
 
 class CardClass {
   @prop()
-  public frontSideText?: string;
+  public frontsideText?: string;
 
   @prop()
-  public frontSideLanguage?: string;
+  public frontsideLanguage?: string;
 
   @prop()
-  public frontSidePicture?: string;
+  public frontsidePicture?: string;
 
   @prop()
-  public backSideText?: string;
+  public backsideText?: string;
 
   @prop()
-  public backSideLanguage?: string;
+  public backsideLanguage?: string;
 
   @prop()
-  public backSidePicture?: string;
+  public backsidePicture?: string;
 
   @prop({ ref: () => typeof User })
   public creator?: Ref<typeof User>; // This is a single Reference

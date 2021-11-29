@@ -39,7 +39,25 @@ describe("card CRUD stuff", () => {
     );
     expect(createCardRes.statusCode).toBe(201);
     expect(typeof JSON.parse(createCardRes.text).card._id).toBe("string");
+    expect(JSON.parse(createCardRes.text).card.frontsideText).toBe("привет");
     newCardId = JSON.parse(createCardRes.text).card._id;
+  });
+
+  //edit card
+  test("PUT /card/:id update a card by it's id", async () => {
+    const updateCardRes = await request(app).put(`/card/${newCardId}`).send({
+      frontsideText: "updated front side text",
+    });
+    console.log(
+      "\x1b[33m",
+      "update response \n",
+      JSON.stringify(updateCardRes, null, 2),
+      "\x1b[00m"
+    );
+    expect(updateCardRes.statusCode).toBe(200);
+    expect(JSON.parse(updateCardRes.text).card.frontsideText).toBe(
+      "updated front side text"
+    );
   });
   //delete card
   test("delete the card we just made", async () => {

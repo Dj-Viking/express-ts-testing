@@ -17,15 +17,36 @@ const Card_1 = __importDefault(require("../models/Card"));
 exports.CardController = {
     createCard: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const payload = Object.assign({}, req.body);
+            console.log("what is body payload on create card route", payload);
             try {
-                const payload = Object.assign({}, req.body);
                 const createdCard = yield Card_1.default.create(payload);
-                console.log("created card response", createdCard);
                 return res.status(201).json({ card: createdCard });
             }
             catch (error) {
                 console.error(error);
                 return res.status(500).json({ error: error.message || error });
+            }
+        });
+    },
+    updateCardById: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const foundCard = yield Card_1.default.findOne({ _id: req.params.id });
+            if (foundCard === null) {
+                return res.status(404).json({ message: "card not found" });
+            }
+            try {
+                console.log("\x1b[33m", "request to update a card", "\x1b[00m", req.body, req.params);
+                const updatedCard = yield Card_1.default.findOneAndUpdate({
+                    _id: req.params.id,
+                }, Object.assign({}, req.body), { new: true });
+                console.log("updated card mongo response", { card: updatedCard });
+                return res.status(200).json({ card: updatedCard });
+            }
+            catch (error) {
+                return res.status(500).json({
+                    error: `error when updating a card by id ${error}`,
+                });
             }
         });
     },

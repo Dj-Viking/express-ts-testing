@@ -19,27 +19,27 @@ class CardClass {
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "frontSideText", void 0);
+], CardClass.prototype, "frontsideText", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "frontSideLanguage", void 0);
+], CardClass.prototype, "frontsideLanguage", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "frontSidePicture", void 0);
+], CardClass.prototype, "frontsidePicture", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "backSideText", void 0);
+], CardClass.prototype, "backsideText", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "backSideLanguage", void 0);
+], CardClass.prototype, "backsideLanguage", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)
-], CardClass.prototype, "backSidePicture", void 0);
+], CardClass.prototype, "backsidePicture", void 0);
 __decorate([
     (0, typegoose_1.prop)({ ref: () => typeof User_1.default }),
     __metadata("design:type", Object)

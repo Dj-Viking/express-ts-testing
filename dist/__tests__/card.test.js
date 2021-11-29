@@ -40,7 +40,16 @@ describe("card CRUD stuff", () => {
         console.log("\x1b[33m", "create response \n", JSON.stringify(createCardRes, null, 2), "\x1b[00m");
         expect(createCardRes.statusCode).toBe(201);
         expect(typeof JSON.parse(createCardRes.text).card._id).toBe("string");
+        expect(JSON.parse(createCardRes.text).card.frontsideText).toBe("привет");
         newCardId = JSON.parse(createCardRes.text).card._id;
+    }));
+    test("PUT /card/:id update a card by it's id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateCardRes = yield (0, supertest_1.default)(app).put(`/card/${newCardId}`).send({
+            frontsideText: "updated front side text",
+        });
+        console.log("\x1b[33m", "update response \n", JSON.stringify(updateCardRes, null, 2), "\x1b[00m");
+        expect(updateCardRes.statusCode).toBe(200);
+        expect(JSON.parse(updateCardRes.text).card.frontsideText).toBe("updated front side text");
     }));
     test("delete the card we just made", () => __awaiter(void 0, void 0, void 0, function* () {
         yield Card_1.default.findOneAndDelete({ _id: newCardId });

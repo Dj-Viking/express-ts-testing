@@ -119,4 +119,4 @@ exports.UserController = {
         });
     },
 };
-//# sourceMappingURL=userController.js.map
+//# sourceMappingURL=UserController.js.map
