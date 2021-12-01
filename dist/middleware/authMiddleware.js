@@ -22,8 +22,10 @@ function authMiddleware(req, res, next) {
             .then((decoded) => {
             if (decoded instanceof Error)
                 return res.status(403).json({ error: decoded });
-            else
+            else {
+                req.user = decoded;
                 return next();
+            }
         })
             .catch((error) => {
             return res.status(500).json({ error: error.stack });

@@ -1,8 +1,9 @@
 import { verifyTokenAsync } from "../utils/verifyTokenAsync";
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { Express } from "../types";
 
 export async function authMiddleware(
-  req: Request,
+  req: Express.MyRequest,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> {
@@ -14,7 +15,10 @@ export async function authMiddleware(
     .then((decoded) => {
       if (decoded instanceof Error)
         return res.status(403).json({ error: decoded });
-      else return next();
+      else {
+        req.user = decoded;
+        return next();
+      }
     })
     .catch((error) => {
       return res.status(500).json({ error: error.stack });

@@ -17,6 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const Card_1 = __importDefault(require("../models/Card"));
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
+const User_1 = __importDefault(require("models/User"));
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -25,7 +26,21 @@ afterEach((done) => {
 });
 const app = (0, app_1.default)();
 let newCardId = null;
+let newUserId = null;
+let newUserToken = null;
 describe("card CRUD stuff", () => {
+    test("POST /user create a new user to start adding cards to their library", () => __awaiter(void 0, void 0, void 0, function* () {
+        const createRes = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "123123",
+            email: "123123",
+            password: "adf",
+        });
+        expect(createRes.statusCode).toBe(201);
+        expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
+        newUserId = JSON.parse(createRes.text).user._id;
+        expect(typeof JSON.parse(createRes.text).user.token).toBe("string");
+        newUserToken = JSON.parse(createRes.text).user.token;
+    }));
     test("POST /card create a new card", () => __awaiter(void 0, void 0, void 0, function* () {
         const createCardRes = yield (0, supertest_1.default)(app)
             .post("/card")
@@ -61,6 +76,9 @@ describe("card CRUD stuff", () => {
     }));
     test("delete the card we just made", () => __awaiter(void 0, void 0, void 0, function* () {
         yield Card_1.default.findOneAndDelete({ _id: newCardId });
+    }));
+    test("delete the user we just made", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield User_1.default.findOneAndDelete({ _id: newUserId });
     }));
 });
 //# sourceMappingURL=card.test.js.map

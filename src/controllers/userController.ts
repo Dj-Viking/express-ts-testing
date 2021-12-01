@@ -1,11 +1,15 @@
 import User from "../models/User";
-import { Request, Response } from "express";
+import { Express } from "../types";
+import { Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
 // import { MyJwtData } from "types";
 const { createUser, updateUserById } = UserService;
 export const UserController = {
-  createUser: async function (req: Request, res: Response): Promise<Response> {
+  createUser: async function (
+    req: Express.MyRequest,
+    res: Response
+  ): Promise<Response> {
     const { username, email, password } = req.body;
     try {
       // TODO: verify the request body most likely with some verifyUser middleware
@@ -35,10 +39,7 @@ export const UserController = {
       });
     }
   },
-  getAllUsers: async function (
-    _req: Request,
-    res: Response
-  ): Promise<Response> {
+  getAllUsers: async function (_: any, res: Response): Promise<Response> {
     console.log("get all users query");
     try {
       const allUsers = await User.find({}).select("-__v");
@@ -49,7 +50,10 @@ export const UserController = {
       });
     }
   },
-  getUserById: async function (req: Request, res: Response): Promise<Response> {
+  getUserById: async function (
+    req: Express.MyRequest,
+    res: Response
+  ): Promise<Response> {
     try {
       // TODO make middleware to verify if a user exists with that ID
       const foundUser = await User.findOne({ _id: req.params.id }).select(
@@ -65,7 +69,7 @@ export const UserController = {
     }
   },
   deleteUserById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
   ): Promise<Response> {
     try {
@@ -87,7 +91,7 @@ export const UserController = {
     }
   },
   updateUserById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
   ): Promise<Response> {
     // TODO make middleware to verify if a user exists with that ID

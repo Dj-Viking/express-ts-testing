@@ -45,7 +45,7 @@ exports.UserController = {
             }
         });
     },
-    getAllUsers: function (_req, res) {
+    getAllUsers: function (_, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("get all users query");
             try {

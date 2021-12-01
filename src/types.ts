@@ -1,4 +1,24 @@
 import jwt from "jsonwebtoken";
+import { Request } from "express";
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: "development" | "production" | "test";
+      PORT?: number;
+      EXPIRED_TOKEN?: string;
+      INVALID_SIGNATURE?: string;
+      SECRET?: string;
+      EXPIRATION?: string;
+    }
+  }
+}
+//declaration merging with express request
+export namespace Express {
+  export type MyRequest = Request & {
+    user?: MyJwtData | null;
+  };
+}
 
 export type MyJwtData = IJwtData;
 export interface IJwtData extends jwt.JwtPayload {
@@ -15,11 +35,7 @@ export interface ICreateUser {
   email: string;
   password: string;
 }
-export namespace Express {
-  export interface Request {
-    user: MyJwtData | null;
-  }
-}
+
 export interface SignLoginRegisterMeTokenArgs {
   username: string;
   email: string;
@@ -30,13 +46,6 @@ export interface SignResetPasswordTokenArgs {
   uuid: string;
   exp: string;
 }
-// export type MyContext = {
-//   req: Request & {
-//     user: MyJwtData | null;
-//   };
-//   res: Response;
-//   next: NextFunction;
-// };
 
 export interface ICreateCardPayload extends Object {
   frontsideText: string;
@@ -71,5 +80,3 @@ export interface IUpdateUserResponse {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-export type CommonError = Record<"errors", any>;
