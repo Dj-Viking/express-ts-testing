@@ -1,7 +1,6 @@
-import { prop, getModelForClass, Ref } from "@typegoose/typegoose";
-import User from "./User";
+import { prop } from "@typegoose/typegoose";
 
-class CardClass {
+export class CardClass {
   @prop()
   public frontsideText?: string;
 
@@ -20,8 +19,8 @@ class CardClass {
   @prop()
   public backsidePicture?: string;
 
-  @prop({ ref: () => typeof User })
-  public creator?: Ref<typeof User>; // This is a single Reference
+  @prop()
+  public creator?: string; // This is a single Reference
 
   @prop()
   public createdAt: Date;
@@ -29,15 +28,3 @@ class CardClass {
   @prop()
   public updatedAt: Date;
 }
-
-// TODO get the model middleware set up when the user is created or updated to update the time of this action
-const Card = getModelForClass(CardClass, {
-  schemaOptions: {
-    timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
-    },
-  },
-});
-
-export default Card;

@@ -8,12 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
-const User_1 = __importDefault(require("../models/User"));
+const models_1 = require("../models");
 const services_1 = require("../db/services");
 const formatError_1 = require("../utils/formatError");
 const { createUser, updateUserById } = services_1.UserService;
@@ -49,7 +46,7 @@ exports.UserController = {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("get all users query");
             try {
-                const allUsers = yield User_1.default.find({}).select("-__v");
+                const allUsers = yield models_1.User.find({}).select("-__v");
                 return res.status(200).json({ users: allUsers });
             }
             catch (error) {
@@ -62,7 +59,7 @@ exports.UserController = {
     getUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                const foundUser = yield models_1.User.findOne({ _id: req.params.id }).select("-__v");
                 if (foundUser === null) {
                     return res.status(404).json({ message: "user not found" });
                 }
@@ -77,11 +74,11 @@ exports.UserController = {
     deleteUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const foundUser = yield User_1.default.findOne({ _id: req.params.id }).select("-__v");
+                const foundUser = yield models_1.User.findOne({ _id: req.params.id }).select("-__v");
                 if (foundUser === null) {
                     return res.status(404).json({ message: "user not found" });
                 }
-                const deleteRes = yield User_1.default.findOneAndDelete({ _id: req.params.id });
+                const deleteRes = yield models_1.User.findOneAndDelete({ _id: req.params.id });
                 console.log("delete response", deleteRes);
                 if (deleteRes !== null)
                     return res.status(200).json({ message: "deleted user" });
@@ -96,7 +93,7 @@ exports.UserController = {
     },
     updateUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundUser = yield User_1.default.findOne({ _id: req.params.id });
+            const foundUser = yield models_1.User.findOne({ _id: req.params.id });
             if (foundUser === null) {
                 return res.status(404).json({ message: "user not found" });
             }

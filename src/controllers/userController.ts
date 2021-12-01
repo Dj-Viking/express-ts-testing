@@ -1,4 +1,4 @@
-import User from "../models/User";
+import { User } from "../models";
 import { Express } from "../types";
 import { Response } from "express";
 import { UserService } from "../db/services";

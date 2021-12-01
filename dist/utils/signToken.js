@@ -7,12 +7,13 @@ exports.signToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const { SECRET, EXPIRATION } = process.env;
 function signToken(args) {
-    const { username, uuid: someUuid, email, } = args;
+    const { username, _id, uuid: someUuid, email, } = args;
     const { resetEmail, uuid, exp } = args;
     switch (true) {
-        case Boolean(username && someUuid && email): {
+        case Boolean(username && someUuid && email && _id): {
             return jsonwebtoken_1.default.sign({
                 username,
+                _id,
                 uuid: someUuid,
                 email,
             }, SECRET, { expiresIn: EXPIRATION });
@@ -24,7 +25,7 @@ function signToken(args) {
             }, SECRET, { expiresIn: exp });
         }
         default:
-            return "can't sign a valid token";
+            return `couldn't create a token from the input args in signToken, one of the properties in the args input object was possibly null or undefined`;
     }
 }
 exports.signToken = signToken;

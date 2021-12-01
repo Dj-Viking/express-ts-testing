@@ -8,12 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CardClass = void 0;
 const typegoose_1 = require("@typegoose/typegoose");
-const User_1 = __importDefault(require("./User"));
 class CardClass {
 }
 __decorate([
@@ -41,8 +38,8 @@ __decorate([
     __metadata("design:type", String)
 ], CardClass.prototype, "backsidePicture", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ ref: () => typeof User_1.default }),
-    __metadata("design:type", Object)
+    (0, typegoose_1.prop)(),
+    __metadata("design:type", String)
 ], CardClass.prototype, "creator", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
@@ -52,13 +49,5 @@ __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", Date)
 ], CardClass.prototype, "updatedAt", void 0);
-const Card = (0, typegoose_1.getModelForClass)(CardClass, {
-    schemaOptions: {
-        timestamps: {
-            createdAt: "createdAt",
-            updatedAt: "updatedAt",
-        },
-    },
-});
-exports.default = Card;
+exports.CardClass = CardClass;
 //# sourceMappingURL=Card.js.map

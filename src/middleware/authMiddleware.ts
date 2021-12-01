@@ -8,7 +8,6 @@ export async function authMiddleware(
   next: NextFunction
 ): Promise<Response | void> {
   const token = req?.headers?.authorization?.split(" ")[1] || null;
-  console.log("what is token in middle ware", token);
   if (!token) return res.status(401).json({ error: "not authenticated" });
   //verify token
   verifyTokenAsync(token)

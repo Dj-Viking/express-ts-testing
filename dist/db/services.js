@@ -8,25 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const signToken_1 = require("../utils/signToken");
-const User_1 = __importDefault(require("../models/User"));
+const models_1 = require("../models");
 const uuid = require("uuid");
 exports.UserService = {
     createUser: function (args) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, password } = args;
-                const createdUser = yield User_1.default.create({
+                const createdUser = yield models_1.User.create({
                     username,
                     email,
                     password,
                 });
                 const token = (0, signToken_1.signToken)({
+                    _id: createdUser._id,
                     username,
                     email,
                     uuid: uuid.v4(),
@@ -88,7 +86,7 @@ exports.UserService = {
                         break;
                 }
                 console.log("trimmed update object", updateObj);
-                const updatedUser = yield User_1.default.findByIdAndUpdate(_id, updateObj, {
+                const updatedUser = yield models_1.User.findByIdAndUpdate(_id, updateObj, {
                     new: true,
                     runValidators: true,
                 });

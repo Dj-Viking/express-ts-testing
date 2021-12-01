@@ -1,5 +1,5 @@
 import { signToken } from "../utils/signToken";
-import User from "../models/User";
+import { User } from "../models";
 import {
   ICreateUser,
   ICreateUserResponse,
@@ -21,6 +21,7 @@ export const UserService = {
       });
 
       const token = signToken({
+        _id: createdUser._id,
         username,
         email,
         uuid: uuid.v4(),

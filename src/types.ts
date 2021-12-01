@@ -5,7 +5,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV: "development" | "production" | "test";
-      PORT?: number;
+      PORT?: string;
       EXPIRED_TOKEN?: string;
       INVALID_SIGNATURE?: string;
       SECRET?: string;
@@ -22,6 +22,7 @@ export namespace Express {
 
 export type MyJwtData = IJwtData;
 export interface IJwtData extends jwt.JwtPayload {
+  _id: string;
   username: string;
   email: string;
   uuid?: string;
@@ -37,6 +38,7 @@ export interface ICreateUser {
 }
 
 export interface SignLoginRegisterMeTokenArgs {
+  _id?: string;
   username: string;
   email: string;
   uuid?: string;

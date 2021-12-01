@@ -15,7 +15,6 @@ function authMiddleware(req, res, next) {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         const token = ((_b = (_a = req === null || req === void 0 ? void 0 : req.headers) === null || _a === void 0 ? void 0 : _a.authorization) === null || _b === void 0 ? void 0 : _b.split(" ")[1]) || null;
-        console.log("what is token in middle ware", token);
         if (!token)
             return res.status(401).json({ error: "not authenticated" });
         (0, verifyTokenAsync_1.verifyTokenAsync)(token)

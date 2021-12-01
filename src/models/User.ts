@@ -1,5 +1,5 @@
-import { pre, prop, getModelForClass, plugin, Ref } from "@typegoose/typegoose";
-import Card from "./Card";
+import { pre, prop, plugin, Ref } from "@typegoose/typegoose";
+import { CardClass } from "./Card";
 import argon2 from "argon2";
 import mongooseUniqueValidator from "mongoose-unique-validator";
 
@@ -10,7 +10,7 @@ import mongooseUniqueValidator from "mongoose-unique-validator";
   next();
 })
 @plugin(mongooseUniqueValidator)
-class UserClass {
+export class UserClass {
   @prop({ required: true, unique: true })
   public username!: string;
 
@@ -23,8 +23,8 @@ class UserClass {
   @prop()
   public token?: string;
 
-  @prop({ ref: () => typeof Card })
-  public cards?: Ref<typeof Card>[]; // This is a Reference Array
+  @prop({ ref: () => CardClass })
+  public cards?: Ref<CardClass>[]; // This is a Reference Array
 
   @prop()
   public createdAt: Date;
@@ -32,14 +32,3 @@ class UserClass {
   @prop()
   public updatedAt: Date;
 }
-
-const User = getModelForClass(UserClass, {
-  schemaOptions: {
-    timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
-    },
-  },
-});
-
-export default User;

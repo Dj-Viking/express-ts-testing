@@ -1,24 +1,40 @@
-import Card from "../models/Card";
-import { Request, Response } from "express";
+import { Card } from "../models";
+import { Response } from "express";
+import { Express } from "../types";
 
 export const CardController = {
   createCard: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     try {
-      const createdCard = await Card.create({ ...req.body });
-      return res.status(201).json({ card: createdCard });
+      console.log("do i have req.user as the decoded token", req.user);
+      const createdCard = await Card.create({
+        ...req.body,
+      });
+      console.log("created card here", createdCard);
+      console.log("what is req.user here", req.user);
+      console.log("what is req.user._id here", req.user?._id);
+      //update this card to have a creator id of the req.user.id
+      const updatedCardWithCreatorId = await Card.findOneAndUpdate(
+        { _id: createdCard._id },
+        {
+          creator: req.user?._id,
+        },
+        { new: true }
+      ).select("-__v");
+      console.log("updated card here", updatedCardWithCreatorId);
+      return res.status(201).json({ card: updatedCardWithCreatorId });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message || error });
     }
   },
   updateCardById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
-    // TODO make middleware to verify if a user exists with that ID
+  ): Promise<Response> {
+    // TODO make params middleware to verify if a user exists with that ID
     const foundCard = await Card.findOne({ _id: req.params.id });
     if (foundCard === null) {
       return res.status(404).json({ message: "card not found" });

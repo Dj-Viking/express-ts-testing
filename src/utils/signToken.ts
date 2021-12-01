@@ -11,6 +11,7 @@ export function signToken(
 ): string {
   const {
     username,
+    _id,
     uuid: someUuid, //i think im aliasing here
     email,
   } = args as SignLoginRegisterMeTokenArgs;
@@ -18,10 +19,11 @@ export function signToken(
   const { resetEmail, uuid, exp } = args as SignResetPasswordTokenArgs;
 
   switch (true) {
-    case Boolean(username && someUuid && email): {
+    case Boolean(username && someUuid && email && _id): {
       return jwt.sign(
         {
           username,
+          _id,
           uuid: someUuid,
           email,
         },
@@ -40,6 +42,6 @@ export function signToken(
       );
     }
     default:
-      return "can't sign a valid token";
+      return `couldn't create a token from the input args in signToken, one of the properties in the args input object was possibly null or undefined`;
   }
 }

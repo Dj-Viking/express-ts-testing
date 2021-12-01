@@ -1,10 +1,10 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import Card from "../models/Card";
+import { Card } from "../models";
 import { ICreateCardPayload } from "../types";
 import createServer from "../app";
 import { LOCAL_DB_URL } from "../constants";
-import User from "models/User";
+import { User } from "../models";
 
 beforeEach((done) => {
   mongoose.connect(LOCAL_DB_URL, {}, () => done());
@@ -19,7 +19,7 @@ afterEach((done) => {
 const app = createServer();
 let newCardId: string | null = null;
 let newUserId: string | null = null;
-let newUserToken: string | null = null;
+// let newUserToken: string | null = null;
 
 describe("card CRUD stuff", () => {
   //create a user that will add cards to their library
@@ -33,7 +33,7 @@ describe("card CRUD stuff", () => {
     expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
     newUserId = JSON.parse(createRes.text).user._id;
     expect(typeof JSON.parse(createRes.text).user.token).toBe("string");
-    newUserToken = JSON.parse(createRes.text).user.token;
+    // newUserToken = JSON.parse(createRes.text).user.token;
   });
   //create card
   // TODO add the user ID to the card mongoose $set? i think?

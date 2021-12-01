@@ -1,6 +1,6 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import User from "../models/User";
+import { User } from "../models";
 import createServer from "../app";
 import { LOCAL_DB_URL } from "../constants";
 
@@ -155,7 +155,7 @@ describe("testing some crud stuff on users", () => {
       "\x1b[00m"
     );
     expect(updateRes.statusCode).toBe(403);
-    expect(JSON.parse(updateRes.text).error.message).toBe("invalid token");
+    expect(JSON.parse(updateRes.text).error.message).toBe("invalid signature");
   });
   test("PUT /user/:id update the user we just made with a valid token", async () => {
     const updateRes = await request(app)

@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const User_1 = __importDefault(require("../models/User"));
+const models_1 = require("../models");
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
 const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
@@ -81,7 +81,7 @@ describe("testing some crud stuff on users", () => {
         expect(getUserRes.statusCode).toBe(200);
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield User_1.default.findOneAndDelete({ _id: newUserId });
+        yield models_1.User.findOneAndDelete({ _id: newUserId });
     }));
     test("POST /user create a user and verify they recieved a token", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes2 = yield (0, supertest_1.default)(app).post("/user").send({
@@ -126,7 +126,7 @@ describe("testing some crud stuff on users", () => {
             .send({ username: "updated username", email: "updated email" });
         console.log("\x1b[33m", "update response with a token with an invalid token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(403);
-        expect(JSON.parse(updateRes.text).error.message).toBe("invalid token");
+        expect(JSON.parse(updateRes.text).error.message).toBe("invalid signature");
     }));
     test("PUT /user/:id update the user we just made with a valid token", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
@@ -139,7 +139,7 @@ describe("testing some crud stuff on users", () => {
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield User_1.default.findOneAndDelete({ _id: newUserId });
+        yield models_1.User.findOneAndDelete({ _id: newUserId });
     }));
 });
 //# sourceMappingURL=user.test.js.map
