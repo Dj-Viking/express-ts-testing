@@ -17,6 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const User_1 = __importDefault(require("../models/User"));
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
+const { EXPIRED_TOKEN } = process.env;
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -25,6 +26,7 @@ afterEach((done) => {
 });
 const app = (0, app_1.default)();
 let newUserId = null;
+let newUserToken = null;
 describe("testing some crud stuff on users", () => {
     test("POST /user request to create user without username", () => __awaiter(void 0, void 0, void 0, function* () {
         const noUsername = yield (0, supertest_1.default)(app).post("/user").send({
@@ -78,20 +80,10 @@ describe("testing some crud stuff on users", () => {
         console.log("\x1b[33m", "create response \n", JSON.stringify(getUserRes, null, 2), "\x1b[00m");
         expect(getUserRes.statusCode).toBe(200);
     }));
-    test("PUT /user/:id update the user we just made", () => __awaiter(void 0, void 0, void 0, function* () {
-        const updateRes = yield (0, supertest_1.default)(app).put(`/user/${newUserId}`).send({
-            username: "updated username",
-            email: "updated email",
-        });
-        console.log("\x1b[33m", "update response \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
-        expect(updateRes.statusCode).toBe(200);
-        expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
-        expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
-    }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield User_1.default.findOneAndDelete({ _id: newUserId });
     }));
-    test("POST /user create a user", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("POST /user create a user and verify they recieved a token", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes2 = yield (0, supertest_1.default)(app).post("/user").send({
             username: "123123",
             email: "123123",
@@ -102,6 +94,40 @@ describe("testing some crud stuff on users", () => {
         expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes2.text).user._id;
         expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
+        newUserToken = JSON.parse(createRes2.text).user.token;
+    }));
+    test("PUT /user/:id update the user we just made and needs a token to do so", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ajkls;dfjnas;kldfj` })
+            .send({
+            username: "updated username",
+            email: "updated email",
+        });
+        console.log("\x1b[33m", "update res with malformed token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
+        expect(updateRes.statusCode).toBe(403);
+        expect(JSON.parse(updateRes.text).error.message).toBe("jwt malformed");
+    }));
+    test("put /user/:id update user with an expired token should get expired error", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({
+            authorization: `Bearer ${EXPIRED_TOKEN}`,
+        })
+            .send({ username: "updated username", email: "updated email" });
+        console.log("\x1b[33m", "update res with expired token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
+        expect(updateRes.statusCode).toBe(403);
+        expect(JSON.parse(updateRes.text).error.message).toBe("jwt expired");
+    }));
+    test("PUT /user/:id update the user we just made with a valid token", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ${newUserToken}` })
+            .send({ username: "updated username", email: "updated email" });
+        console.log("\x1b[33m", "update response with valid token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
+        expect(updateRes.statusCode).toBe(200);
+        expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
+        expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield User_1.default.findOneAndDelete({ _id: newUserId });

@@ -12,19 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyAsync = void 0;
+exports.verifyTokenAsync = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const { EXPIRATION, SECRET } = process.env;
-function verifyAsync(token) {
+function verifyTokenAsync(token) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve) => {
             let returnMe;
             jsonwebtoken_1.default.verify(token, SECRET, { maxAge: EXPIRATION }, (error, decoded) => {
-                if (error === null || error === void 0 ? void 0 : error.message.includes("malformed"))
-                    returnMe = error;
-                if (error === null || error === void 0 ? void 0 : error.message.includes("expired"))
-                    returnMe = error;
-                if (error === null || error === void 0 ? void 0 : error.message.includes("invalid"))
+                if (!!(error === null || error === void 0 ? void 0 : error.message))
                     returnMe = error;
                 if (decoded)
                     returnMe = decoded;
@@ -33,5 +29,5 @@ function verifyAsync(token) {
         });
     });
 }
-exports.verifyAsync = verifyAsync;
+exports.verifyTokenAsync = verifyTokenAsync;
 //# sourceMappingURL=verifyTokenAsync.js.map

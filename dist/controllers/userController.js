@@ -34,7 +34,6 @@ exports.UserController = {
                 if (error.errors) {
                     errorsObj = Object.assign({}, error.errors);
                 }
-                console.log("\x1b[34m", "errorsObj", errorsObj, "error message from create user", error, "\x1b[00m");
                 if (Boolean(errorsObj.username || errorsObj.email || errorsObj.password)) {
                     return res
                         .status(400)
