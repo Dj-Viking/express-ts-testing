@@ -27,6 +27,7 @@ afterEach((done) => {
 const app = (0, app_1.default)();
 let newCardId = null;
 let newUserId = null;
+let newUserToken = null;
 describe("card CRUD stuff", () => {
     test("POST /user create a new user to start adding cards to their library", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
@@ -38,10 +39,14 @@ describe("card CRUD stuff", () => {
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
         expect(typeof JSON.parse(createRes.text).user.token).toBe("string");
+        newUserToken = JSON.parse(createRes.text).user.token;
     }));
     test("POST /card create a new card", () => __awaiter(void 0, void 0, void 0, function* () {
         const createCardRes = yield (0, supertest_1.default)(app)
             .post("/card")
+            .set({
+            authorization: `Bearer ${newUserToken}`,
+        })
             .send({
             frontsideText: "привет",
             frontsideLanguage: "Русский",
@@ -51,21 +56,28 @@ describe("card CRUD stuff", () => {
             backsidePicture: "ksdjfdkj",
         });
         console.log("\x1b[33m", "create response \n", JSON.stringify(createCardRes, null, 2), "\x1b[00m");
+        const parsedJSON = JSON.parse(createCardRes.text);
         expect(createCardRes.statusCode).toBe(201);
-        expect(typeof JSON.parse(createCardRes.text).card._id).toBe("string");
-        expect(JSON.parse(createCardRes.text).card.frontsideText).toBe("привет");
-        newCardId = JSON.parse(createCardRes.text).card._id;
+        expect(typeof parsedJSON.card._id).toBe("string");
+        expect(parsedJSON.card.frontsideText).toBe("привет");
+        newCardId = parsedJSON.card._id;
+        expect(typeof parsedJSON.card.creator).toBe("string");
     }));
     test("PUT /card/:id update card with bogus id", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("previous id", newCardId);
         const bogusId = newCardId === null || newCardId === void 0 ? void 0 : newCardId.replace(newCardId[1], "f");
         console.log("bogus id", bogusId);
-        const notFound = yield (0, supertest_1.default)(app).put(`/card/${bogusId}`);
+        const notFound = yield (0, supertest_1.default)(app)
+            .put(`/card/${bogusId}`)
+            .set({ authorization: `Bearer ${newUserToken}` });
         expect(notFound.statusCode).toBe(404);
         expect(JSON.parse(notFound.text).message).toBe("card not found");
     }));
     test("PUT /card/:id update a card by it's id", () => __awaiter(void 0, void 0, void 0, function* () {
-        const updateCardRes = yield (0, supertest_1.default)(app).put(`/card/${newCardId}`).send({
+        const updateCardRes = yield (0, supertest_1.default)(app)
+            .put(`/card/${newCardId}`)
+            .set({ authorization: `Bearer ${newUserToken}` })
+            .send({
             frontsideText: "updated front side text",
         });
         console.log("\x1b[33m", "update response \n", JSON.stringify(updateCardRes, null, 2), "\x1b[00m");
