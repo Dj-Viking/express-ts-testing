@@ -27,7 +27,7 @@ describe("testing some crud stuff on users", () => {
     });
     console.log(
       "\x1b[33m",
-      "create response \n",
+      "create2 response \n",
       JSON.stringify(createRes, null, 2),
       "\x1b[00m"
     );
@@ -71,6 +71,28 @@ describe("testing some crud stuff on users", () => {
     expect(updateRes.statusCode).toBe(200);
     expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
     expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
+  });
+  test("delete the user we just made with the mongo client", async () => {
+    await User.findOneAndDelete({ _id: newUserId });
+  });
+  //create a user and verify their token exists and it's new
+  test("POST /user create a user", async () => {
+    const createRes2 = await request(app).post("/user").send({
+      username: "123123",
+      email: "123123",
+      password: "adf",
+    });
+    console.log(
+      "\x1b[33m",
+      "create response \n",
+      JSON.stringify(createRes2, null, 2),
+      "\x1b[00m"
+    );
+    expect(createRes2.statusCode).toBe(201);
+    expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
+    newUserId = JSON.parse(createRes2.text).user._id;
+
+    expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
   });
   test("delete the user we just made with the mongo client", async () => {
     await User.findOneAndDelete({ _id: newUserId });

@@ -1,3 +1,4 @@
+import { signToken } from "../utils/signToken";
 import User from "../models/User";
 import {
   ICreateUser,
@@ -6,45 +7,59 @@ import {
   IUpdateUserObject,
   IUpdateUserResponse,
 } from "../types";
+// eslint-disable-next-line
+const uuid = require("uuid");
 
 export const UserService = {
-  createUser: async function (
-    args: ICreateUser
-  ): Promise<ICreateUserResponse | unknown> {
+  createUser: async function (args: ICreateUser): Promise<ICreateUserResponse> {
     try {
       const { username, email, password } = args;
+      console.log("args passed into create user function", args);
       const createdUser = await User.create({
         username,
         email,
         password,
       });
+
+      console.log("user created from args", createdUser);
+
+      const token = signToken({
+        username,
+        email,
+        uuid: uuid.v4(),
+      });
+
       return {
         username: createdUser.username,
         email: createdUser.email,
         _id: createdUser._id,
+        token,
         createdAt: createdUser.createdAt,
         updatedAt: createdUser.updatedAt,
       };
     } catch (error) {
-      switch (true) {
-        case error.errors.email: {
-          throw {
-            email: error.errors.email,
-          };
+      if (error.errors) {
+        switch (true) {
+          case error.errors.email: {
+            throw {
+              email: error.errors.email,
+            };
+          }
+          case error.errors.username: {
+            throw {
+              username: error.errors.username,
+            };
+          }
+          case error.errors.password: {
+            throw {
+              password: error.errors.password,
+            };
+          }
+          default:
+            throw error;
         }
-        case error.errors.username: {
-          throw {
-            username: error.errors.username,
-          };
-        }
-        case error.errors.password: {
-          throw {
-            password: error.errors.password,
-          };
-        }
-        default:
-          throw error;
       }
+      throw error;
     }
   },
   updateUserById: async function (

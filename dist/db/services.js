@@ -13,45 +13,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+const signToken_1 = require("../utils/signToken");
 const User_1 = __importDefault(require("../models/User"));
+const uuid = require("uuid");
 exports.UserService = {
     createUser: function (args) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, password } = args;
+                console.log("args passed into create user function", args);
                 const createdUser = yield User_1.default.create({
                     username,
                     email,
                     password,
                 });
+                console.log("user created from args", createdUser);
+                const token = (0, signToken_1.signToken)({
+                    username,
+                    email,
+                    uuid: uuid.v4(),
+                });
                 return {
                     username: createdUser.username,
                     email: createdUser.email,
                     _id: createdUser._id,
+                    token,
                     createdAt: createdUser.createdAt,
                     updatedAt: createdUser.updatedAt,
                 };
             }
             catch (error) {
-                switch (true) {
-                    case error.errors.email: {
-                        throw {
-                            email: error.errors.email,
-                        };
+                if (error.errors) {
+                    switch (true) {
+                        case error.errors.email: {
+                            throw {
+                                email: error.errors.email,
+                            };
+                        }
+                        case error.errors.username: {
+                            throw {
+                                username: error.errors.username,
+                            };
+                        }
+                        case error.errors.password: {
+                            throw {
+                                password: error.errors.password,
+                            };
+                        }
+                        default:
+                            throw error;
                     }
-                    case error.errors.username: {
-                        throw {
-                            username: error.errors.username,
-                        };
-                    }
-                    case error.errors.password: {
-                        throw {
-                            password: error.errors.password,
-                        };
-                    }
-                    default:
-                        throw error;
                 }
+                throw error;
             }
         });
     },

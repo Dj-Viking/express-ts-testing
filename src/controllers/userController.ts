@@ -1,13 +1,12 @@
 import User from "../models/User";
 import { Request, Response } from "express";
 import { UserService } from "../db/services";
-import { formatCreateUserError } from "../utils/formatError";
+// import { formatCreateUserError } from "../utils/formatError";
+// import { MyJwtData } from "types";
 const { createUser, updateUserById } = UserService;
 export const UserController = {
-  createUser: async function (
-    req: Request,
-    res: Response
-  ): Promise<Record<string, any>> {
+  createUser: async function (req: Request, res: Response): Promise<Response> {
+    console.log("request body of create user route", req.body);
     const { username, email, password } = req.body;
     try {
       // TODO: verify the request body most likely with some verifyUser middleware
@@ -16,27 +15,37 @@ export const UserController = {
         email,
         password,
       });
+      console.log("created user", user);
+      // const { token } = req.user as MyJwtData | null;
       return res.status(201).json({ user });
     } catch (error) {
-      const { username, email, password } = error.errors;
-      if (Boolean(username || email || password)) {
-        return res.status(400).json({
-          error: `${formatCreateUserError({
-            username,
-            email,
-            password,
-          })}`,
-        });
-      }
+      // let errorsObj = {} as { username: any; email: any; password: any };
+      // if (error.errors) {
+      //   errorsObj = {
+      //     ...error.errors,
+      //   };
+      // }
+      // if (
+      //   Boolean(errorsObj.username || errorsObj.email || errorsObj.password)
+      // ) {
+      //   return res.status(400).json({
+      //     error: `${formatCreateUserError({
+      //       username,
+      //       email,
+      //       password,
+      //     })}`,
+      //   });
+      // }
+      console.error("error when creating a user", error);
       return res.status(500).json({
-        error: `error when creating a user:\n ${error}`,
+        error: `error when creating a user: ${error}, ${error.stack}`,
       });
     }
   },
   getAllUsers: async function (
     _req: Request,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     console.log("get all users query");
     try {
       const allUsers = await User.find({}).select("-__v");
@@ -47,10 +56,7 @@ export const UserController = {
       });
     }
   },
-  getUserById: async function (
-    req: Request,
-    res: Response
-  ): Promise<Record<string, any>> {
+  getUserById: async function (req: Request, res: Response): Promise<Response> {
     try {
       // TODO make middleware to verify if a user exists with that ID
       const foundUser = await User.findOne({ _id: req.params.id }).select(
@@ -68,7 +74,7 @@ export const UserController = {
   deleteUserById: async function (
     req: Request,
     res: Response
-  ): Promise<Record<string, any> | void> {
+  ): Promise<Response> {
     try {
       // TODO make middleware to verify if a user exists with that ID
       const foundUser = await User.findOne({ _id: req.params.id }).select(
@@ -90,7 +96,7 @@ export const UserController = {
   updateUserById: async function (
     req: Request,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     // TODO make middleware to verify if a user exists with that ID
     const foundUser = await User.findOne({ _id: req.params.id });
     if (foundUser === null) {

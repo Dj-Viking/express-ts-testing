@@ -20,6 +20,9 @@ class UserClass {
   @prop({ required: true, select: false })
   private password!: string;
 
+  @prop()
+  public token?: string;
+
   @prop({ ref: () => typeof Card })
   public cards?: Ref<typeof Card>[]; // This is a Reference Array
 

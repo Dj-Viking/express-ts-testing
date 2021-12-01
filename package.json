@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test:config": "jest --showConfig",
-    "test": "NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
+    "test": "SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
     "tsw": "tsc -w",
     "tsc": "tsc",
     "start": "sh dev.sh",
-    "concurrent": "NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
+    "concurrent": "SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
   },
   "repository": {
     "type": "git",
@@ -25,10 +25,14 @@
   "dependencies": {
     "@typegoose/typegoose": "^9.2.0",
     "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.26",
     "@types/jest": "^27.0.3",
+    "@types/jsonwebtoken": "^8.5.6",
     "@types/mongoose-unique-validator": "^1.0.5",
+    "@types/qs": "^6.9.7",
     "@types/superagent": "^4.1.13",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8.3.3",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "argon2": "^0.28.3",
@@ -42,14 +46,18 @@
     "express": "^4.17.1",
     "if-env": "^1.0.4",
     "jest": "^27.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
     "mongoose": "^6.0.13",
     "mongoose-unique-validator": "^3.0.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.0",
+    "qs": "^6.10.1",
     "superagent": "^6.1.0",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "uuid": "^8.3.2"
   }
 }

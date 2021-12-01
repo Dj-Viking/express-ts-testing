@@ -32,7 +32,7 @@ describe("testing some crud stuff on users", () => {
             email: "123123",
             password: "adf",
         });
-        console.log("\x1b[33m", "create response \n", JSON.stringify(createRes, null, 2), "\x1b[00m");
+        console.log("\x1b[33m", "create2 response \n", JSON.stringify(createRes, null, 2), "\x1b[00m");
         expect(createRes.statusCode).toBe(201);
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
@@ -60,6 +60,21 @@ describe("testing some crud stuff on users", () => {
         expect(updateRes.statusCode).toBe(200);
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
+    }));
+    test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield User_1.default.findOneAndDelete({ _id: newUserId });
+    }));
+    test("POST /user create a user", () => __awaiter(void 0, void 0, void 0, function* () {
+        const createRes2 = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "123123",
+            email: "123123",
+            password: "adf",
+        });
+        console.log("\x1b[33m", "create response \n", JSON.stringify(createRes2, null, 2), "\x1b[00m");
+        expect(createRes2.statusCode).toBe(201);
+        expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
+        newUserId = JSON.parse(createRes2.text).user._id;
+        expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield User_1.default.findOneAndDelete({ _id: newUserId });

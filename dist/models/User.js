@@ -40,6 +40,10 @@ __decorate([
     __metadata("design:type", String)
 ], UserClass.prototype, "password", void 0);
 __decorate([
+    (0, typegoose_1.prop)(),
+    __metadata("design:type", String)
+], UserClass.prototype, "token", void 0);
+__decorate([
     (0, typegoose_1.prop)({ ref: () => typeof Card_1.default }),
     __metadata("design:type", Array)
 ], UserClass.prototype, "cards", void 0);
