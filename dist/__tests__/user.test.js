@@ -17,7 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const User_1 = __importDefault(require("../models/User"));
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
-const { EXPIRED_TOKEN } = process.env;
+const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -96,7 +96,7 @@ describe("testing some crud stuff on users", () => {
         expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
         newUserToken = JSON.parse(createRes2.text).user.token;
     }));
-    test("PUT /user/:id update the user we just made and needs a token to do so", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("PUT /user/:id update the user with malformed token get jwt malformed error", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
             .put(`/user/${newUserId}`)
             .set({ authorization: `Bearer ajkls;dfjnas;kldfj` })
@@ -118,6 +118,15 @@ describe("testing some crud stuff on users", () => {
         console.log("\x1b[33m", "update res with expired token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(403);
         expect(JSON.parse(updateRes.text).error.message).toBe("jwt expired");
+    }));
+    test("PUT /user/:id update user with a token that has an invalid token and return error response", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ${INVALID_SIGNATURE}` })
+            .send({ username: "updated username", email: "updated email" });
+        console.log("\x1b[33m", "update response with a token with an invalid token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
+        expect(updateRes.statusCode).toBe(403);
+        expect(JSON.parse(updateRes.text).error.message).toBe("invalid token");
     }));
     test("PUT /user/:id update the user we just made with a valid token", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
