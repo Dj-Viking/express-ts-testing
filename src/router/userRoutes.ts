@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { RequestHandler } from "express-serve-static-core";
 import { UserController } from "../controllers/UserController";
 import { authMiddleware } from "../middleware/authMiddleware";
 const router = Router();
@@ -11,7 +10,7 @@ router.route("/").post(createUser).get(getAllUsers);
 // /user/:id
 router
   .route("/:id")
-  .put(authMiddleware as RequestHandler, updateUserById)
+  .put(authMiddleware, updateUserById)
   .get(getUserById)
   .delete(deleteUserById);
 
