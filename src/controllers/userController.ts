@@ -1,12 +1,11 @@
 import User from "../models/User";
 import { Request, Response } from "express";
 import { UserService } from "../db/services";
-// import { formatCreateUserError } from "../utils/formatError";
+import { formatCreateUserError } from "../utils/formatError";
 // import { MyJwtData } from "types";
 const { createUser, updateUserById } = UserService;
 export const UserController = {
   createUser: async function (req: Request, res: Response): Promise<Response> {
-    console.log("request body of create user route", req.body);
     const { username, email, password } = req.body;
     try {
       // TODO: verify the request body most likely with some verifyUser middleware
@@ -15,28 +14,30 @@ export const UserController = {
         email,
         password,
       });
-      console.log("created user", user);
-      // const { token } = req.user as MyJwtData | null;
       return res.status(201).json({ user });
     } catch (error) {
-      // let errorsObj = {} as { username: any; email: any; password: any };
-      // if (error.errors) {
-      //   errorsObj = {
-      //     ...error.errors,
-      //   };
-      // }
-      // if (
-      //   Boolean(errorsObj.username || errorsObj.email || errorsObj.password)
-      // ) {
-      //   return res.status(400).json({
-      //     error: `${formatCreateUserError({
-      //       username,
-      //       email,
-      //       password,
-      //     })}`,
-      //   });
-      // }
-      console.error("error when creating a user", error);
+      let errorsObj = {} as { username: any; email: any; password: any };
+      if (error.errors) {
+        errorsObj = {
+          ...error.errors,
+        };
+      }
+      console.log(
+        "\x1b[34m",
+        "errorsObj",
+        errorsObj,
+        "error message from create user",
+        error,
+        "\x1b[00m"
+      );
+      if (
+        Boolean(errorsObj.username || errorsObj.email || errorsObj.password)
+      ) {
+        return res
+          .status(400)
+          .json({ error: `${formatCreateUserError(errorsObj)}` });
+      }
+      // console.error("error when creating a user", error);
       return res.status(500).json({
         error: `error when creating a user: ${error}, ${error.stack}`,
       });

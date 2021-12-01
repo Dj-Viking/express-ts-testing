@@ -21,13 +21,11 @@ exports.UserService = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, password } = args;
-                console.log("args passed into create user function", args);
                 const createdUser = yield User_1.default.create({
                     username,
                     email,
                     password,
                 });
-                console.log("user created from args", createdUser);
                 const token = (0, signToken_1.signToken)({
                     username,
                     email,
@@ -47,17 +45,17 @@ exports.UserService = {
                     switch (true) {
                         case error.errors.email: {
                             throw {
-                                email: error.errors.email,
+                                email: error.errors,
                             };
                         }
                         case error.errors.username: {
                             throw {
-                                username: error.errors.username,
+                                username: error.errors,
                             };
                         }
                         case error.errors.password: {
                             throw {
-                                password: error.errors.password,
+                                password: error.errors,
                             };
                         }
                         default:

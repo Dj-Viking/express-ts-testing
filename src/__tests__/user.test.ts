@@ -18,6 +18,34 @@ const app = createServer();
 let newUserId: string | null = null;
 
 describe("testing some crud stuff on users", () => {
+  //try to create user without username email or password
+  test("POST /user request to create user without username", async () => {
+    const noUsername = await request(app).post("/user").send({
+      username: "",
+      email: "kdjfkdjfkj",
+      password: "kdjfdjfj",
+    });
+    expect(noUsername.statusCode).toBe(400);
+    expect(JSON.parse(noUsername.text).error).toBe("username is required.");
+  });
+  test("POST /user request to create user without email", async () => {
+    const noEmail = await request(app).post("/user").send({
+      username: "ksdjfkdf",
+      email: "",
+      password: "a;kdjfjkdfj",
+    });
+    expect(noEmail.statusCode).toBe(400);
+    expect(JSON.parse(noEmail.text).error).toBe("email is required.");
+  });
+  test("POST /user request to create user without password", async () => {
+    const noPassword = await request(app).post("/user").send({
+      username: "ksdjfdj",
+      email: "klsjdfj",
+      password: "",
+    });
+    expect(noPassword.statusCode).toBe(400);
+    expect(JSON.parse(noPassword.text).error).toBe("password is required.");
+  });
   //create a user
   test("POST /user create a user", async () => {
     const createRes = await request(app).post("/user").send({

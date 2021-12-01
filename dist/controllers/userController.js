@@ -15,11 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const User_1 = __importDefault(require("../models/User"));
 const services_1 = require("../db/services");
+const formatError_1 = require("../utils/formatError");
 const { createUser, updateUserById } = services_1.UserService;
 exports.UserController = {
     createUser: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("request body of create user route", req.body);
             const { username, email, password } = req.body;
             try {
                 const user = yield createUser({
@@ -27,11 +27,19 @@ exports.UserController = {
                     email,
                     password,
                 });
-                console.log("created user", user);
                 return res.status(201).json({ user });
             }
             catch (error) {
-                console.error("error when creating a user", error);
+                let errorsObj = {};
+                if (error.errors) {
+                    errorsObj = Object.assign({}, error.errors);
+                }
+                console.log("\x1b[34m", "errorsObj", errorsObj, "error message from create user", error, "\x1b[00m");
+                if (Boolean(errorsObj.username || errorsObj.email || errorsObj.password)) {
+                    return res
+                        .status(400)
+                        .json({ error: `${(0, formatError_1.formatCreateUserError)(errorsObj)}` });
+                }
                 return res.status(500).json({
                     error: `error when creating a user: ${error}, ${error.stack}`,
                 });

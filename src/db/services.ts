@@ -14,14 +14,11 @@ export const UserService = {
   createUser: async function (args: ICreateUser): Promise<ICreateUserResponse> {
     try {
       const { username, email, password } = args;
-      console.log("args passed into create user function", args);
       const createdUser = await User.create({
         username,
         email,
         password,
       });
-
-      console.log("user created from args", createdUser);
 
       const token = signToken({
         username,
@@ -42,17 +39,17 @@ export const UserService = {
         switch (true) {
           case error.errors.email: {
             throw {
-              email: error.errors.email,
+              email: error.errors,
             };
           }
           case error.errors.username: {
             throw {
-              username: error.errors.username,
+              username: error.errors,
             };
           }
           case error.errors.password: {
             throw {
-              password: error.errors.password,
+              password: error.errors,
             };
           }
           default:

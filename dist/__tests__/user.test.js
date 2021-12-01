@@ -26,6 +26,33 @@ afterEach((done) => {
 const app = (0, app_1.default)();
 let newUserId = null;
 describe("testing some crud stuff on users", () => {
+    test("POST /user request to create user without username", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noUsername = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "",
+            email: "kdjfkdjfkj",
+            password: "kdjfdjfj",
+        });
+        expect(noUsername.statusCode).toBe(400);
+        expect(JSON.parse(noUsername.text).error).toBe("username is required.");
+    }));
+    test("POST /user request to create user without email", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noEmail = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "ksdjfkdf",
+            email: "",
+            password: "a;kdjfjkdfj",
+        });
+        expect(noEmail.statusCode).toBe(400);
+        expect(JSON.parse(noEmail.text).error).toBe("email is required.");
+    }));
+    test("POST /user request to create user without password", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noPassword = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "ksdjfdj",
+            email: "klsjdfj",
+            password: "",
+        });
+        expect(noPassword.statusCode).toBe(400);
+        expect(JSON.parse(noPassword.text).error).toBe("password is required.");
+    }));
     test("POST /user create a user", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
             username: "123123",
