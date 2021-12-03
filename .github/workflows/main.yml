@@ -27,7 +27,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14.17.0
-
+      - name: look at directory
+        run: ls -a
       - name: npm install
         run: 
           npm install
