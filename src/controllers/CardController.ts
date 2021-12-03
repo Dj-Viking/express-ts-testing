@@ -1,4 +1,4 @@
-import { Card } from "../models";
+import { Card, User } from "../models";
 import { Response } from "express";
 import { Express } from "../types";
 
@@ -20,8 +20,19 @@ export const CardController = {
         },
         { new: true }
       ).select("-__v");
-      console.log("updated card here", updatedCardWithCreatorId);
-      return res.status(201).json({ card: updatedCardWithCreatorId });
+
+      const foundUser = await User.findOneAndUpdate(
+        { _id: req.user?._id },
+        { $push: { cards: updatedCardWithCreatorId } },
+        { new: true }
+      );
+      if (foundUser === null)
+        return res.status(401).json({
+          error:
+            "not authenticated can't add a card to a non user's collection",
+        });
+
+      return res.status(201).json({ cards: foundUser.cards });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message || error });

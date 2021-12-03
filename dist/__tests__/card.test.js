@@ -31,9 +31,9 @@ let newUserToken = null;
 describe("card CRUD stuff", () => {
     test("POST /user create a new user to start adding cards to their library", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
-            username: "123123",
-            email: "123123",
-            password: "adf",
+            username: constants_1.TEST_USERNAME,
+            email: constants_1.TEST_EMAIL,
+            password: constants_1.TEST_PASSWORD,
         });
         expect(createRes.statusCode).toBe(201);
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
@@ -50,7 +50,7 @@ describe("card CRUD stuff", () => {
             .send({
             frontsideText: "привет",
             frontsideLanguage: "Русский",
-            frontsidePicture: "kdfjdjkfd",
+            frontsidePicture: "front side picture text",
             backsideText: "hello",
             backsideLanguage: "English",
             backsidePicture: "ksdjfdkj",
@@ -58,10 +58,12 @@ describe("card CRUD stuff", () => {
         console.log("\x1b[33m", "create response \n", JSON.stringify(createCardRes, null, 2), "\x1b[00m");
         const parsedJSON = JSON.parse(createCardRes.text);
         expect(createCardRes.statusCode).toBe(201);
-        expect(typeof parsedJSON.card._id).toBe("string");
-        expect(parsedJSON.card.frontsideText).toBe("привет");
-        newCardId = parsedJSON.card._id;
-        expect(typeof parsedJSON.card.creator).toBe("string");
+        expect(parsedJSON.cards).toHaveLength(1);
+        expect(typeof parsedJSON.cards[0]).toBe("string");
+        newCardId = parsedJSON.cards[0];
+        const createdCard = yield models_1.Card.findOne({ _id: newCardId });
+        expect(typeof (createdCard === null || createdCard === void 0 ? void 0 : createdCard.frontsidePicture)).toBe("string");
+        expect(createdCard === null || createdCard === void 0 ? void 0 : createdCard.frontsidePicture).toBe("front side picture text");
     }));
     test("PUT /card/:id update card with bogus id", () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("previous id", newCardId);

@@ -3,7 +3,12 @@ import mongoose from "mongoose";
 import { Card } from "../models";
 import { ICreateCardPayload } from "../types";
 import createServer from "../app";
-import { LOCAL_DB_URL } from "../constants";
+import {
+  LOCAL_DB_URL,
+  TEST_EMAIL,
+  TEST_PASSWORD,
+  TEST_USERNAME,
+} from "../constants";
 import { User } from "../models";
 
 beforeEach((done) => {
@@ -25,9 +30,9 @@ describe("card CRUD stuff", () => {
   //create a user that will add cards to their library
   test("POST /user create a new user to start adding cards to their library", async () => {
     const createRes = await request(app).post("/user").send({
-      username: "123123",
-      email: "123123",
-      password: "adf",
+      username: TEST_USERNAME,
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
     });
     expect(createRes.statusCode).toBe(201);
     expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
@@ -46,7 +51,7 @@ describe("card CRUD stuff", () => {
       .send({
         frontsideText: "привет",
         frontsideLanguage: "Русский",
-        frontsidePicture: "kdfjdjkfd",
+        frontsidePicture: "front side picture text",
         backsideText: "hello",
         backsideLanguage: "English",
         backsidePicture: "ksdjfdkj",
@@ -59,10 +64,12 @@ describe("card CRUD stuff", () => {
     );
     const parsedJSON = JSON.parse(createCardRes.text);
     expect(createCardRes.statusCode).toBe(201);
-    expect(typeof parsedJSON.card._id).toBe("string");
-    expect(parsedJSON.card.frontsideText).toBe("привет");
-    newCardId = parsedJSON.card._id;
-    expect(typeof parsedJSON.card.creator).toBe("string");
+    expect(parsedJSON.cards).toHaveLength(1);
+    expect(typeof parsedJSON.cards[0]).toBe("string");
+    newCardId = parsedJSON.cards[0];
+    const createdCard = await Card.findOne({ _id: newCardId });
+    expect(typeof createdCard?.frontsidePicture).toBe("string");
+    expect(createdCard?.frontsidePicture).toBe("front side picture text");
   });
   // checks edit card with bogus id will give correct error response
   test("PUT /card/:id update card with bogus id", async () => {

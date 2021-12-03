@@ -13,7 +13,7 @@ exports.CardController = void 0;
 const models_1 = require("../models");
 exports.CardController = {
     createCard: function (req, res) {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("do i have req.user as the decoded token", req.user);
@@ -21,8 +21,12 @@ exports.CardController = {
                 const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
                     creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
                 }, { new: true }).select("-__v");
-                console.log("updated card here", updatedCardWithCreatorId);
-                return res.status(201).json({ card: updatedCardWithCreatorId });
+                const foundUser = yield models_1.User.findOneAndUpdate({ _id: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id }, { $push: { cards: updatedCardWithCreatorId } }, { new: true });
+                if (foundUser === null)
+                    return res.status(401).json({
+                        error: "not authenticated can't add a card to a non user's collection",
+                    });
+                return res.status(201).json({ cards: foundUser.cards });
             }
             catch (error) {
                 console.error(error);
