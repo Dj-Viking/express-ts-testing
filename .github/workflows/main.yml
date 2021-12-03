@@ -27,6 +27,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14.17.0
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: 4.4.3
       - name: look at directory
         run: ls -a
       - name: look at src directory
