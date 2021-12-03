@@ -1,2 +1,6 @@
 .env
 node_modules
+secret.txt
+expiration.txt
+expired.txt
+invalid_signature.txt

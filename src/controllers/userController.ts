@@ -1,13 +1,19 @@
-import User from "../models/User";
-import { Request, Response } from "express";
+import { User } from "../models";
+import { Express } from "../types";
+import { Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
+import argon2 from "argon2";
+import { signToken } from "../utils/signToken";
+// eslint-disable-next-line
+const uuid = require("uuid");
+// import { MyJwtData } from "types";
 const { createUser, updateUserById } = UserService;
 export const UserController = {
   createUser: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     const { username, email, password } = req.body;
     try {
       // TODO: verify the request body most likely with some verifyUser middleware
@@ -18,25 +24,61 @@ export const UserController = {
       });
       return res.status(201).json({ user });
     } catch (error) {
-      const { username, email, password } = error.errors;
-      if (Boolean(username || email || password)) {
-        return res.status(400).json({
-          error: `${formatCreateUserError({
-            username,
-            email,
-            password,
-          })}`,
-        });
+      let errorsObj = {} as { username: any; email: any; password: any };
+      if (error.errors) {
+        errorsObj = {
+          ...error.errors,
+        };
       }
+      if (
+        Boolean(errorsObj.username || errorsObj.email || errorsObj.password)
+      ) {
+        return res
+          .status(400)
+          .json({ error: `${formatCreateUserError(errorsObj)}` });
+      }
+      // console.error("error when creating a user", error);
       return res.status(500).json({
-        error: `error when creating a user:\n ${error}`,
+        error: `error when creating a user: ${error}, ${error.stack}`,
       });
     }
   },
-  getAllUsers: async function (
-    _req: Request,
+  login: async function (
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
+    try {
+      const { email, password } = req.body;
+      const foundUser = await User.findOne({ email });
+      if (foundUser === null)
+        return res.status(400).json({ error: "incorrect credentials" });
+      console.log("found user in login route", foundUser);
+      const validPass = await argon2.verify(
+        foundUser?.password as string,
+        password
+      );
+      if (!validPass)
+        return res.status(400).json({ error: "incorrect credentials" });
+      const token = signToken({
+        _id: foundUser?._id as string,
+        username: foundUser?.username as string,
+        email: foundUser?.email as string,
+        uuid: uuid.v4(),
+      });
+      const returnUser = {
+        token,
+        username: foundUser?.username,
+        email: foundUser?.email,
+        _id: foundUser?._id,
+        cards: [],
+      };
+      return res.status(200).json({ user: returnUser });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message || error });
+    }
+  },
+  getAllUsers: async function (_: any, res: Response): Promise<Response> {
     console.log("get all users query");
     try {
       const allUsers = await User.find({}).select("-__v");
@@ -48,9 +90,9 @@ export const UserController = {
     }
   },
   getUserById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     try {
       // TODO make middleware to verify if a user exists with that ID
       const foundUser = await User.findOne({ _id: req.params.id }).select(
@@ -66,9 +108,9 @@ export const UserController = {
     }
   },
   deleteUserById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any> | void> {
+  ): Promise<Response> {
     try {
       // TODO make middleware to verify if a user exists with that ID
       const foundUser = await User.findOne({ _id: req.params.id }).select(
@@ -88,9 +130,9 @@ export const UserController = {
     }
   },
   updateUserById: async function (
-    req: Request,
+    req: Express.MyRequest,
     res: Response
-  ): Promise<Record<string, any>> {
+  ): Promise<Response> {
     // TODO make middleware to verify if a user exists with that ID
     const foundUser = await User.findOne({ _id: req.params.id });
     if (foundUser === null) {

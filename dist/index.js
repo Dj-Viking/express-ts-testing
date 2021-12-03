@@ -9,7 +9,7 @@ const connection_1 = __importDefault(require("./db/connection"));
 const PORT = process.env.PORT || 4000;
 connection_1.default.then(() => {
     const app = (0, app_1.default)();
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), () => {
         console.log("\x1b[44m", `✨🔮 ${!constants_1.IS_PROD
             ? `dev server started on http://localhost:${PORT}`
             : `server started on port ${PORT}`}`, "\x1b[00m");

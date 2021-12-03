@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 4000;
 
 connection.then(() => {
   const app = createServer();
-  app.listen(PORT, () => {
+  app.listen(Number(PORT), () => {
     console.log(
       "\x1b[44m",
       `✨🔮 ${

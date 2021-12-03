@@ -1,6 +1,18 @@
-import { pre, prop, getModelForClass, plugin } from "@typegoose/typegoose";
+import { pre, prop, plugin, Ref } from "@typegoose/typegoose";
+import { CardClass } from "./Card";
 import argon2 from "argon2";
 import mongooseUniqueValidator from "mongoose-unique-validator";
+
+// interface QueryHelpers {
+//   isCorrectPassword: Promise<boolean>;
+// }
+
+// async function isCorrectPassword(
+//   this: ReturnModelType<typeof UserClass, QueryHelpers>,
+//   str: string
+// ) {
+//   return argon2.verify(this.password, str);
+// }
 
 @pre<UserClass>("save", async function (next) {
   if (this.isNew || this.isModified("password")) {
@@ -9,15 +21,21 @@ import mongooseUniqueValidator from "mongoose-unique-validator";
   next();
 })
 @plugin(mongooseUniqueValidator)
-class UserClass {
+export class UserClass {
   @prop({ required: true, unique: true })
   public username!: string;
 
   @prop({ required: true, unique: true })
   public email!: string;
 
-  @prop({ required: true, select: false })
-  private password!: string;
+  @prop({ required: true })
+  public password!: string;
+
+  @prop()
+  public token?: string;
+
+  @prop({ ref: () => CardClass })
+  public cards?: Ref<CardClass>[]; // This is a Reference Array
 
   @prop()
   public createdAt: Date;
@@ -25,15 +43,3 @@ class UserClass {
   @prop()
   public updatedAt: Date;
 }
-
-// TODO get the model middleware set up when the user is created or updated to update the time of this action
-const User = getModelForClass(UserClass, {
-  schemaOptions: {
-    timestamps: {
-      createdAt: "createdAt",
-      updatedAt: "updatedAt",
-    },
-  },
-});
-
-export default User;

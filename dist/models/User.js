@@ -21,7 +21,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserClass = void 0;
 const typegoose_1 = require("@typegoose/typegoose");
+const Card_1 = require("./Card");
 const argon2_1 = __importDefault(require("argon2"));
 const mongoose_unique_validator_1 = __importDefault(require("mongoose-unique-validator"));
 let UserClass = class UserClass {
@@ -35,9 +37,17 @@ __decorate([
     __metadata("design:type", String)
 ], UserClass.prototype, "email", void 0);
 __decorate([
-    (0, typegoose_1.prop)({ required: true, select: false }),
+    (0, typegoose_1.prop)({ required: true }),
     __metadata("design:type", String)
 ], UserClass.prototype, "password", void 0);
+__decorate([
+    (0, typegoose_1.prop)(),
+    __metadata("design:type", String)
+], UserClass.prototype, "token", void 0);
+__decorate([
+    (0, typegoose_1.prop)({ ref: () => Card_1.CardClass }),
+    __metadata("design:type", Array)
+], UserClass.prototype, "cards", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", Date)
@@ -57,13 +67,5 @@ UserClass = __decorate([
     }),
     (0, typegoose_1.plugin)(mongoose_unique_validator_1.default)
 ], UserClass);
-const User = (0, typegoose_1.getModelForClass)(UserClass, {
-    schemaOptions: {
-        timestamps: {
-            createdAt: "createdAt",
-            updatedAt: "updatedAt",
-        },
-    },
-});
-exports.default = User;
+exports.UserClass = UserClass;
 //# sourceMappingURL=User.js.map

@@ -1,17 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatCreateUserError = void 0;
-function formatCreateUserError(options) {
-    const { username, email, password } = options;
+function formatCreateUserError(errorsObj) {
+    const { username, email, password } = errorsObj;
     switch (true) {
         case !!username: {
-            return username.toString().replace(/`/g, "").replace(/Path/, "").trim();
+            return username.message
+                .toString()
+                .replace(/`/g, "")
+                .replace(/Path/, "")
+                .trim();
         }
         case !!password: {
-            return password.toString().replace(/`/g, "").replace(/Path/, "").trim();
+            return password.message
+                .toString()
+                .replace(/`/g, "")
+                .replace(/Path/, "")
+                .trim();
         }
         case !!email: {
-            return email.toString().replace(/`/g, "").replace(/Path/, "").trim();
+            return email.message
+                .toString()
+                .replace(/`/g, "")
+                .replace(/Path/, "")
+                .trim();
         }
     }
 }

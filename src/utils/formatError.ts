@@ -1,20 +1,31 @@
-export function formatCreateUserError(options: {
+export function formatCreateUserError(errorsObj: {
   username: any;
   email: any;
   password: any;
 }): string | void {
-  const { username, email, password } = options;
-  // console.log("what is typeof email", typeof email /* object */, email.toString());
-  // console.log("which input is defined", username, "\n", email, "\n", password);
+  const { username, email, password } = errorsObj;
+
   switch (true) {
     case !!username: {
-      return username.toString().replace(/`/g, "").replace(/Path/, "").trim();
+      return username.message
+        .toString()
+        .replace(/`/g, "")
+        .replace(/Path/, "")
+        .trim();
     }
     case !!password: {
-      return password.toString().replace(/`/g, "").replace(/Path/, "").trim();
+      return password.message
+        .toString()
+        .replace(/`/g, "")
+        .replace(/Path/, "")
+        .trim();
     }
     case !!email: {
-      return email.toString().replace(/`/g, "").replace(/Path/, "").trim();
+      return email.message
+        .toString()
+        .replace(/`/g, "")
+        .replace(/Path/, "")
+        .trim();
     }
   }
 }
