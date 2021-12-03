@@ -8,6 +8,7 @@ export default async (): Promise<Config.InitialOptions> => {
     },
     moduleFileExtensions: ["ts", "js"],
     testMatch: ["**/?(*.)+(spec|test).ts"],
+    modulePaths: ["<rootDir>"]
     // testMatch: ["**/?(*.)+(spec|test).js"],
     // watchPathIgnorePatterns: [".+(spec|test).ts"]
   };
