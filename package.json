@@ -7,7 +7,7 @@
     "clear_jest": "jest --clearCache",
     "test:config": "jest --showConfig",
     "test": "EXPIRED_TOKEN=$(cat expired.txt) INVALID_SIGNATURE=$(cat invalid_signature.txt) SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
-    "test:ci": "EXPIRATION=$EXPIRATION EXPIRED_TOKEN=$EXPIRED_TOKEN INVALID_SIGNATURE=$INVALID_SIGNATURE SECRET=$SECRET jest --verbose --detectOpenHandles",
+    "test:ci": "jest --verbose --detectOpenHandles",
     "tsw": "tsc -w",
     "tsc": "tsc",
     "start": "sh dev.sh",
