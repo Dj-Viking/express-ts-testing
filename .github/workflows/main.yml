@@ -31,9 +31,9 @@ jobs:
         run: ls -a
       - name: look at src directory
         run: cd src; ls -a
-      - name: npm install
+      - name: install all packages with version from project's own package-lock.json
         run: 
-          npm install
+          npm ci
       # Runs a set of commands using the runners shell
       - name: Run automated tests
         run: |

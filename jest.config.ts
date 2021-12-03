@@ -7,8 +7,8 @@ export default async (): Promise<Config.InitialOptions> => {
       "^.+\\.tsx?$": "ts-jest",
     },
     moduleFileExtensions: ["ts", "js"],
-    testMatch: ["**/?(*.)+(spec|test).ts"],
-    // testMatch: ["**/?(*.)+(spec|test).js"],
-    // watchPathIgnorePatterns: [".+(spec|test).ts"]
+    // testMatch: ["**/?(*.)+(spec|test).ts"],
+    testMatch: ["**/?(*.)+(spec|test).js"],
+    watchPathIgnorePatterns: [".+(spec|test).ts"]
   };
 };
