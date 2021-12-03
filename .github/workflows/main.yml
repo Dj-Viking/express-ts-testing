@@ -40,12 +40,9 @@ jobs:
           npm ci
       # Runs a set of commands using the runners shell
       - name: Run automated tests
-        env: 
-          EXPIRATION=${{ secrets.EXPIRATION }}
-          EXPIRED_TOKEN=${{ secrets.EXPIRED_TOKEN }}
-          INVALID_SIGNATURE=${{ secrets.INVALID_SIGNATURE }}
-          SECRET=${{ secrets.SECRET }}
-        run: |
-          echo Running automated tests
-          npm run clear_jest;
-          npm run test:ci;
+        run: echo Running automated tests; npm run clear_jest; npm run test:ci;
+          env: 
+            EXPIRATION=${{ secrets.EXPIRATION }}
+            EXPIRED_TOKEN=${{ secrets.EXPIRED_TOKEN }}
+            INVALID_SIGNATURE=${{ secrets.INVALID_SIGNATURE }}
+            SECRET=${{ secrets.SECRET }}
