@@ -72,7 +72,6 @@ exports.UserService = {
                     username,
                     email,
                 };
-                console.log("update obj created", updateObj);
                 switch (true) {
                     case !_id:
                         throw { id: `must provide an id to update a user` };
@@ -85,12 +84,10 @@ exports.UserService = {
                     default:
                         break;
                 }
-                console.log("trimmed update object", updateObj);
                 const updatedUser = yield models_1.User.findByIdAndUpdate(_id, updateObj, {
                     new: true,
                     runValidators: true,
                 });
-                console.log("updated user db response", updatedUser);
                 return {
                     _id: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id,
                     username: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.username,
@@ -100,7 +97,6 @@ exports.UserService = {
                 };
             }
             catch (error) {
-                console.log("error when updating user: ", error, error.id);
                 throw error.id || error;
             }
         });

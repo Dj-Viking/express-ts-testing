@@ -51,7 +51,7 @@ export const UserController = {
       const foundUser = await User.findOne({ email });
       if (foundUser === null)
         return res.status(400).json({ error: "incorrect credentials" });
-      console.log("found user in login route", foundUser);
+      // console.log("found user in login route", foundUser);
       const validPass = await foundUser.isCorrectPassword(password);
       if (!validPass)
         return res.status(400).json({ error: "incorrect credentials" });
@@ -75,7 +75,7 @@ export const UserController = {
     }
   },
   getAllUsers: async function (_: any, res: Response): Promise<Response> {
-    console.log("get all users query");
+    // console.log("get all users query");
     try {
       const allUsers = await User.find({}).select("-__v");
       return res.status(200).json({ users: allUsers });
@@ -116,7 +116,7 @@ export const UserController = {
         return res.status(404).json({ message: "user not found" });
       }
       const deleteRes = await User.findOneAndDelete({ _id: req.params.id });
-      console.log("delete response", deleteRes);
+      // console.log("delete response", deleteRes);
       if (deleteRes !== null)
         return res.status(200).json({ message: "deleted user" });
       else throw new Error("delete response was null, unsuccessful delete");
@@ -135,19 +135,19 @@ export const UserController = {
       return res.status(404).json({ message: "user not found" });
     }
     try {
-      console.log(
-        "\x1b[33m",
-        "request to update a user",
-        "\x1b[00m",
-        req.body,
-        req.params
-      );
+      // console.log(
+      //   "\x1b[33m",
+      //   "request to update a user",
+      //   "\x1b[00m",
+      //   req.body,
+      //   req.params
+      // );
       const updatedUser = await updateUserById({
         _id: req.params.id,
         username: req.body.username,
         email: req.body.email,
       });
-      console.log("updated user service response", { user: updatedUser });
+      // console.log("updated user service response", { user: updatedUser });
       return res.status(200).json({ user: updatedUser });
     } catch (error) {
       return res.status(500).json({

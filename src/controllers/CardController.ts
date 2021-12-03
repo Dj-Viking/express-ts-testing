@@ -9,7 +9,7 @@ export const CardController = {
     res: Response
   ): Promise<Response> {
     try {
-      console.log("do i have req.user as the decoded token", req.user);
+      // console.log("do i have req.user as the decoded token", req.user);
       const createdCard = await Card.create({
         ...req.body,
       });
@@ -48,13 +48,13 @@ export const CardController = {
       return res.status(404).json({ message: "card not found" });
     }
     try {
-      console.log(
-        "\x1b[33m",
-        "request to update a card",
-        "\x1b[00m",
-        req.body,
-        req.params
-      );
+      // console.log(
+      //   "\x1b[33m",
+      //   "request to update a card",
+      //   "\x1b[00m",
+      //   req.body,
+      //   req.params
+      // );
       const updatedCard = await Card.findOneAndUpdate(
         {
           _id: req.params.id,
@@ -62,7 +62,7 @@ export const CardController = {
         { ...req.body },
         { new: true }
       );
-      console.log("updated card mongo response", { card: updatedCard });
+      // console.log("updated card mongo response", { card: updatedCard });
       return res.status(200).json({ card: updatedCard });
     } catch (error) {
       return res.status(500).json({

@@ -16,7 +16,6 @@ exports.CardController = {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("do i have req.user as the decoded token", req.user);
                 const createdCard = yield models_1.Card.create(Object.assign({}, req.body));
                 const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
                     creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
@@ -41,11 +40,9 @@ exports.CardController = {
                 return res.status(404).json({ message: "card not found" });
             }
             try {
-                console.log("\x1b[33m", "request to update a card", "\x1b[00m", req.body, req.params);
                 const updatedCard = yield models_1.Card.findOneAndUpdate({
                     _id: req.params.id,
                 }, Object.assign({}, req.body), { new: true });
-                console.log("updated card mongo response", { card: updatedCard });
                 return res.status(200).json({ card: updatedCard });
             }
             catch (error) {

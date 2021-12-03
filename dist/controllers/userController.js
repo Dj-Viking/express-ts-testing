@@ -51,7 +51,6 @@ exports.UserController = {
                 const foundUser = yield models_1.User.findOne({ email });
                 if (foundUser === null)
                     return res.status(400).json({ error: "incorrect credentials" });
-                console.log("found user in login route", foundUser);
                 const validPass = yield foundUser.isCorrectPassword(password);
                 if (!validPass)
                     return res.status(400).json({ error: "incorrect credentials" });
@@ -78,7 +77,6 @@ exports.UserController = {
     },
     getAllUsers: function (_, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("get all users query");
             try {
                 const allUsers = yield models_1.User.find({}).select("-__v");
                 return res.status(200).json({ users: allUsers });
@@ -113,7 +111,6 @@ exports.UserController = {
                     return res.status(404).json({ message: "user not found" });
                 }
                 const deleteRes = yield models_1.User.findOneAndDelete({ _id: req.params.id });
-                console.log("delete response", deleteRes);
                 if (deleteRes !== null)
                     return res.status(200).json({ message: "deleted user" });
                 else
@@ -132,13 +129,11 @@ exports.UserController = {
                 return res.status(404).json({ message: "user not found" });
             }
             try {
-                console.log("\x1b[33m", "request to update a user", "\x1b[00m", req.body, req.params);
                 const updatedUser = yield updateUserById({
                     _id: req.params.id,
                     username: req.body.username,
                     email: req.body.email,
                 });
-                console.log("updated user service response", { user: updatedUser });
                 return res.status(200).json({ user: updatedUser });
             }
             catch (error) {

@@ -69,7 +69,7 @@ export const UserService = {
         username,
         email,
       } as IUpdateUserObject;
-      console.log("update obj created", updateObj);
+      // console.log("update obj created", updateObj);
       //delete the properties that are undefined from the object sent
       // by the request body
       switch (true) {
@@ -85,13 +85,13 @@ export const UserService = {
           break;
       }
 
-      console.log("trimmed update object", updateObj);
+      // console.log("trimmed update object", updateObj);
 
       const updatedUser = await User.findByIdAndUpdate(_id, updateObj, {
         new: true,
         runValidators: true,
       });
-      console.log("updated user db response", updatedUser);
+      // console.log("updated user db response", updatedUser);
       return {
         _id: updatedUser?._id,
         username: updatedUser?.username,
@@ -100,7 +100,7 @@ export const UserService = {
         updatedAt: updatedUser?.updatedAt,
       } as IUpdateUserResponse;
     } catch (error) {
-      console.log("error when updating user: ", error, error.id);
+      // console.log("error when updating user: ", error, error.id);
       throw error.id || error;
     }
   },
