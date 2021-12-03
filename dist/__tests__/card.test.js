@@ -55,7 +55,6 @@ describe("card CRUD stuff", () => {
             backsideLanguage: "English",
             backsidePicture: "ksdjfdkj",
         });
-        console.log("\x1b[33m", "create response \n", JSON.stringify(createCardRes, null, 2), "\x1b[00m");
         const parsedJSON = JSON.parse(createCardRes.text);
         expect(createCardRes.statusCode).toBe(201);
         expect(parsedJSON.cards).toHaveLength(1);
@@ -66,9 +65,7 @@ describe("card CRUD stuff", () => {
         expect(createdCard === null || createdCard === void 0 ? void 0 : createdCard.frontsidePicture).toBe("front side picture text");
     }));
     test("PUT /card/:id update card with bogus id", () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("previous id", newCardId);
         const bogusId = newCardId === null || newCardId === void 0 ? void 0 : newCardId.replace(newCardId[1], "f");
-        console.log("bogus id", bogusId);
         const notFound = yield (0, supertest_1.default)(app)
             .put(`/card/${bogusId}`)
             .set({ authorization: `Bearer ${newUserToken}` });
@@ -82,7 +79,6 @@ describe("card CRUD stuff", () => {
             .send({
             frontsideText: "updated front side text",
         });
-        console.log("\x1b[33m", "update response \n", JSON.stringify(updateCardRes, null, 2), "\x1b[00m");
         expect(updateCardRes.statusCode).toBe(200);
         expect(JSON.parse(updateCardRes.text).card.frontsideText).toBe("updated front side text");
     }));

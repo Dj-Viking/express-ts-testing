@@ -8,7 +8,9 @@ export default async (): Promise<Config.InitialOptions> => {
     },
     moduleFileExtensions: ["ts", "js"],
     testMatch: ["**/?(*.)+(spec|test).ts"],
-    modulePaths: ["<rootDir>"]
+    // need this module paths set to this to run tests in github actions workflow
+    // otherwise some imports can't be resolved
+    modulePaths: ["<rootDir"],
     // testMatch: ["**/?(*.)+(spec|test).js"],
     // watchPathIgnorePatterns: [".+(spec|test).ts"]
   };

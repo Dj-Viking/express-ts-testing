@@ -61,23 +61,18 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
-        console.log("\x1b[33m", "create new user response \n", JSON.stringify(createRes, null, 2), "\x1b[00m");
         expect(createRes.statusCode).toBe(201);
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
     }));
     test("GET /user/:id with a bogus object id", () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("previous id", newUserId);
         const invalidId = newUserId === null || newUserId === void 0 ? void 0 : newUserId.replace(newUserId[1], "f");
-        console.log("created invalid id", invalidId);
         const notFound = yield (0, supertest_1.default)(app).get(`/user/${invalidId}`);
         expect(notFound.statusCode).toBe(404);
         expect(JSON.parse(notFound.text).message).toBe("user not found");
     }));
     test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("what is user id here", newUserId);
         const getUserRes = yield (0, supertest_1.default)(app).get(`/user/${newUserId}`);
-        console.log("\x1b[33m", "create response \n", JSON.stringify(getUserRes, null, 2), "\x1b[00m");
         expect(getUserRes.statusCode).toBe(200);
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -89,7 +84,6 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
-        console.log("\x1b[33m", "create response \n", JSON.stringify(createRes2, null, 2), "\x1b[00m");
         expect(createRes2.statusCode).toBe(201);
         expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes2.text).user._id;
@@ -104,7 +98,6 @@ describe("testing some crud stuff on users", () => {
             username: "updated username",
             email: "updated email",
         });
-        console.log("\x1b[33m", "update res with malformed token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(403);
         expect(JSON.parse(updateRes.text).error.message).toBe("jwt malformed");
     }));
@@ -115,7 +108,6 @@ describe("testing some crud stuff on users", () => {
             authorization: `Bearer ${EXPIRED_TOKEN}`,
         })
             .send({ username: "updated username", email: "updated email" });
-        console.log("\x1b[33m", "update res with expired token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(403);
         expect(JSON.parse(updateRes.text).error.message).toBe("jwt expired");
     }));
@@ -124,7 +116,6 @@ describe("testing some crud stuff on users", () => {
             .put(`/user/${newUserId}`)
             .set({ authorization: `Bearer ${INVALID_SIGNATURE}` })
             .send({ username: "updated username", email: "updated email" });
-        console.log("\x1b[33m", "update response with a token with an invalid token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(403);
         expect(JSON.parse(updateRes.text).error.message).toBe("invalid signature");
     }));
@@ -133,7 +124,6 @@ describe("testing some crud stuff on users", () => {
             .put(`/user/${newUserId}`)
             .set({ authorization: `Bearer ${newUserToken}` })
             .send({ username: "updated username", email: "updated email" });
-        console.log("\x1b[33m", "update response with valid token \n", JSON.stringify(updateRes, null, 2), "\x1b[00m");
         expect(updateRes.statusCode).toBe(200);
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
@@ -143,7 +133,6 @@ describe("testing some crud stuff on users", () => {
             email: "updated email",
             password: constants_1.TEST_PASSWORD,
         });
-        console.log("\x1b[33m", "login response \n", JSON.stringify(loginRes, null, 2), "\x1b[00m");
         expect(loginRes.statusCode).toBe(200);
         const parsed = JSON.parse(loginRes.text);
         expect(typeof parsed.user.token).toBe("string");
