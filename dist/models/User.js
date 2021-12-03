@@ -27,6 +27,11 @@ const Card_1 = require("./Card");
 const argon2_1 = __importDefault(require("argon2"));
 const mongoose_unique_validator_1 = __importDefault(require("mongoose-unique-validator"));
 let UserClass = class UserClass {
+    isCorrectPassword(plainPass) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return argon2_1.default.verify(this.password, plainPass);
+        });
+    }
 };
 __decorate([
     (0, typegoose_1.prop)({ required: true, unique: true }),
@@ -59,9 +64,8 @@ __decorate([
 UserClass = __decorate([
     (0, typegoose_1.pre)("save", function (next) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.isNew || this.isModified("password")) {
+            if (this.isNew || this.isModified("password"))
                 this.password = yield argon2_1.default.hash(this.password);
-            }
             next();
         });
     }),

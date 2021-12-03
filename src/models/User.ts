@@ -1,23 +1,11 @@
-import { pre, prop, plugin, Ref } from "@typegoose/typegoose";
+import { pre, prop, plugin, Ref, DocumentType } from "@typegoose/typegoose";
 import { CardClass } from "./Card";
 import argon2 from "argon2";
 import mongooseUniqueValidator from "mongoose-unique-validator";
 
-// interface QueryHelpers {
-//   isCorrectPassword: Promise<boolean>;
-// }
-
-// async function isCorrectPassword(
-//   this: ReturnModelType<typeof UserClass, QueryHelpers>,
-//   str: string
-// ) {
-//   return argon2.verify(this.password, str);
-// }
-
 @pre<UserClass>("save", async function (next) {
-  if (this.isNew || this.isModified("password")) {
+  if (this.isNew || this.isModified("password"))
     this.password = await argon2.hash(this.password);
-  }
   next();
 })
 @plugin(mongooseUniqueValidator)
@@ -42,4 +30,15 @@ export class UserClass {
 
   @prop()
   public updatedAt: Date;
+
+  //important note, this method is not a part of the Model but the returned Document from a Model query
+  // e.g. const user = User.findOne({ _id })
+  // user.isCorrectPassword("password") //now the method is attached to the document
+  public async isCorrectPassword(
+    this: DocumentType<UserClass>,
+    plainPass: string
+  ) {
+    //returning the promise object unresolved and the await will happen when this method is called
+    return argon2.verify(this.password, plainPass);
+  }
 }

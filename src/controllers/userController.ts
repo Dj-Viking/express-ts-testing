@@ -3,7 +3,6 @@ import { Express } from "../types";
 import { Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
-import argon2 from "argon2";
 import { signToken } from "../utils/signToken";
 // eslint-disable-next-line
 const uuid = require("uuid");
@@ -53,10 +52,7 @@ export const UserController = {
       if (foundUser === null)
         return res.status(400).json({ error: "incorrect credentials" });
       console.log("found user in login route", foundUser);
-      const validPass = await argon2.verify(
-        foundUser?.password as string,
-        password
-      );
+      const validPass = await foundUser.isCorrectPassword(password);
       if (!validPass)
         return res.status(400).json({ error: "incorrect credentials" });
       const token = signToken({
