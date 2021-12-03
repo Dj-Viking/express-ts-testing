@@ -43,4 +43,8 @@ jobs:
         run: |
           echo Running automated tests,
           npm run clear_jest;
+          EXPIRATION=${{ secrets.EXPIRATION }}
+          EXPIRED_TOKEN=${{ secrets.EXPIRED_TOKEN }}
+          INVALID_SIGNATURE=${{ secrets.INVALID_SIGNATURE }}
+          SECRET=${{ secrets.SECRET }}
           npm run test:ci
