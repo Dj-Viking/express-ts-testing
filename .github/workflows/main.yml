@@ -29,6 +29,8 @@ jobs:
           node-version: 14.17.0
       - name: look at directory
         run: ls -a
+      - name: look at src directory
+        run: cd src; ls -a
       - name: npm install
         run: 
           npm install
