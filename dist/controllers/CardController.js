@@ -13,16 +13,13 @@ exports.CardController = void 0;
 const models_1 = require("../models");
 exports.CardController = {
     createCard: function (req, res) {
-        var _a, _b;
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("do i have req.user as the decoded token", req.user);
                 const createdCard = yield models_1.Card.create(Object.assign({}, req.body));
-                console.log("created card here", createdCard);
-                console.log("what is req.user here", req.user);
-                console.log("what is req.user._id here", (_a = req.user) === null || _a === void 0 ? void 0 : _a._id);
                 const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
-                    creator: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id,
+                    creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
                 }, { new: true }).select("-__v");
                 console.log("updated card here", updatedCardWithCreatorId);
                 return res.status(201).json({ card: updatedCardWithCreatorId });

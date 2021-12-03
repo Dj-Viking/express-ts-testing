@@ -8,11 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const models_1 = require("../models");
 const services_1 = require("../db/services");
 const formatError_1 = require("../utils/formatError");
+const argon2_1 = __importDefault(require("argon2"));
+const signToken_1 = require("../utils/signToken");
+const uuid = require("uuid");
 const { createUser, updateUserById } = services_1.UserService;
 exports.UserController = {
     createUser: function (req, res) {
@@ -39,6 +45,38 @@ exports.UserController = {
                 return res.status(500).json({
                     error: `error when creating a user: ${error}, ${error.stack}`,
                 });
+            }
+        });
+    },
+    login: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { email, password } = req.body;
+                const foundUser = yield models_1.User.findOne({ email });
+                if (foundUser === null)
+                    return res.status(400).json({ error: "incorrect credentials" });
+                console.log("found user in login route", foundUser);
+                const validPass = yield argon2_1.default.verify(foundUser === null || foundUser === void 0 ? void 0 : foundUser.password, password);
+                if (!validPass)
+                    return res.status(400).json({ error: "incorrect credentials" });
+                const token = (0, signToken_1.signToken)({
+                    _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
+                    username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
+                    email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
+                    uuid: uuid.v4(),
+                });
+                const returnUser = {
+                    token,
+                    username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
+                    email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
+                    _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
+                    cards: [],
+                };
+                return res.status(200).json({ user: returnUser });
+            }
+            catch (error) {
+                console.error(error);
+                return res.status(500).json({ error: error.message || error });
             }
         });
     },

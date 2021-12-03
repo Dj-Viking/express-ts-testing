@@ -2,7 +2,12 @@ import request from "supertest";
 import mongoose from "mongoose";
 import { User } from "../models";
 import createServer from "../app";
-import { LOCAL_DB_URL } from "../constants";
+import {
+  LOCAL_DB_URL,
+  TEST_EMAIL,
+  TEST_PASSWORD,
+  TEST_USERNAME,
+} from "../constants";
 
 const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
 
@@ -52,13 +57,13 @@ describe("testing some crud stuff on users", () => {
   //create a user
   test("POST /user create a user", async () => {
     const createRes = await request(app).post("/user").send({
-      username: "123123",
-      email: "123123",
-      password: "adf",
+      username: TEST_USERNAME,
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
     });
     console.log(
       "\x1b[33m",
-      "create2 response \n",
+      "create new user response \n",
       JSON.stringify(createRes, null, 2),
       "\x1b[00m"
     );
@@ -93,9 +98,9 @@ describe("testing some crud stuff on users", () => {
   //create a user and verify their token exists and it's new
   test("POST /user create a user and verify they recieved a token", async () => {
     const createRes2 = await request(app).post("/user").send({
-      username: "123123",
-      email: "123123",
-      password: "adf",
+      username: TEST_USERNAME,
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
     });
     console.log(
       "\x1b[33m",
@@ -171,6 +176,39 @@ describe("testing some crud stuff on users", () => {
     expect(updateRes.statusCode).toBe(200);
     expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
     expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
+  });
+  // login test
+  test("POST /user/login test the login route and we also return a new token", async () => {
+    const loginRes = await request(app).post("/user/login").send({
+      email: "updated email",
+      password: TEST_PASSWORD,
+    });
+    console.log(
+      "\x1b[33m",
+      "login response \n",
+      JSON.stringify(loginRes, null, 2),
+      "\x1b[00m"
+    );
+    expect(loginRes.statusCode).toBe(200);
+    const parsed = JSON.parse(loginRes.text);
+    expect(typeof parsed.user.token).toBe("string");
+  });
+  // login test incorrect credentials error
+  test("POST /user/login test with garbage email the login errors appear", async () => {
+    const badCreds = await request(app).post("/user/login").send({
+      email: "kdjfkdjf",
+      password: TEST_PASSWORD,
+    });
+    expect(badCreds.statusCode).toBe(400);
+    expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
+  });
+  test("POST /user/login test with garbage email the login errors appear", async () => {
+    const badCreds = await request(app).post("/user/login").send({
+      email: "updated email",
+      password: "ksdjfkdjfkj",
+    });
+    expect(badCreds.statusCode).toBe(400);
+    expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
   });
   test("delete the user we just made with the mongo client", async () => {
     await User.findOneAndDelete({ _id: newUserId });

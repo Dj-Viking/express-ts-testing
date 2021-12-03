@@ -3,6 +3,7 @@ import { Response } from "express";
 import { Express } from "../types";
 
 export const CardController = {
+  //TODO update the requestor's card array with whatever card is being created here
   createCard: async function (
     req: Express.MyRequest,
     res: Response
@@ -12,10 +13,6 @@ export const CardController = {
       const createdCard = await Card.create({
         ...req.body,
       });
-      console.log("created card here", createdCard);
-      console.log("what is req.user here", req.user);
-      console.log("what is req.user._id here", req.user?._id);
-      //update this card to have a creator id of the req.user.id
       const updatedCardWithCreatorId = await Card.findOneAndUpdate(
         { _id: createdCard._id },
         {

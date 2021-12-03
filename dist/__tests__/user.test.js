@@ -57,11 +57,11 @@ describe("testing some crud stuff on users", () => {
     }));
     test("POST /user create a user", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
-            username: "123123",
-            email: "123123",
-            password: "adf",
+            username: constants_1.TEST_USERNAME,
+            email: constants_1.TEST_EMAIL,
+            password: constants_1.TEST_PASSWORD,
         });
-        console.log("\x1b[33m", "create2 response \n", JSON.stringify(createRes, null, 2), "\x1b[00m");
+        console.log("\x1b[33m", "create new user response \n", JSON.stringify(createRes, null, 2), "\x1b[00m");
         expect(createRes.statusCode).toBe(201);
         expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
         newUserId = JSON.parse(createRes.text).user._id;
@@ -85,9 +85,9 @@ describe("testing some crud stuff on users", () => {
     }));
     test("POST /user create a user and verify they recieved a token", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes2 = yield (0, supertest_1.default)(app).post("/user").send({
-            username: "123123",
-            email: "123123",
-            password: "adf",
+            username: constants_1.TEST_USERNAME,
+            email: constants_1.TEST_EMAIL,
+            password: constants_1.TEST_PASSWORD,
         });
         console.log("\x1b[33m", "create response \n", JSON.stringify(createRes2, null, 2), "\x1b[00m");
         expect(createRes2.statusCode).toBe(201);
@@ -137,6 +137,32 @@ describe("testing some crud stuff on users", () => {
         expect(updateRes.statusCode).toBe(200);
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
+    }));
+    test("POST /user/login test the login route and we also return a new token", () => __awaiter(void 0, void 0, void 0, function* () {
+        const loginRes = yield (0, supertest_1.default)(app).post("/user/login").send({
+            email: "updated email",
+            password: constants_1.TEST_PASSWORD,
+        });
+        console.log("\x1b[33m", "login response \n", JSON.stringify(loginRes, null, 2), "\x1b[00m");
+        expect(loginRes.statusCode).toBe(200);
+        const parsed = JSON.parse(loginRes.text);
+        expect(typeof parsed.user.token).toBe("string");
+    }));
+    test("POST /user/login test with garbage email the login errors appear", () => __awaiter(void 0, void 0, void 0, function* () {
+        const badCreds = yield (0, supertest_1.default)(app).post("/user/login").send({
+            email: "kdjfkdjf",
+            password: constants_1.TEST_PASSWORD,
+        });
+        expect(badCreds.statusCode).toBe(400);
+        expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
+    }));
+    test("POST /user/login test with garbage email the login errors appear", () => __awaiter(void 0, void 0, void 0, function* () {
+        const badCreds = yield (0, supertest_1.default)(app).post("/user/login").send({
+            email: "updated email",
+            password: "ksdjfkdjfkj",
+        });
+        expect(badCreds.statusCode).toBe(400);
+        expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_1.User.findOneAndDelete({ _id: newUserId });

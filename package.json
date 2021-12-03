@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clear_jest": "jest --clearCache",
     "test:config": "jest --showConfig",
     "test": "EXPIRED_TOKEN=$(cat expired.txt) INVALID_SIGNATURE=$(cat invalid_signature.txt) SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
     "tsw": "tsc -w",

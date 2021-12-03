@@ -3,6 +3,10 @@ import { Express } from "../types";
 import { Response } from "express";
 import { UserService } from "../db/services";
 import { formatCreateUserError } from "../utils/formatError";
+import argon2 from "argon2";
+import { signToken } from "../utils/signToken";
+// eslint-disable-next-line
+const uuid = require("uuid");
 // import { MyJwtData } from "types";
 const { createUser, updateUserById } = UserService;
 export const UserController = {
@@ -37,6 +41,41 @@ export const UserController = {
       return res.status(500).json({
         error: `error when creating a user: ${error}, ${error.stack}`,
       });
+    }
+  },
+  login: async function (
+    req: Express.MyRequest,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const { email, password } = req.body;
+      const foundUser = await User.findOne({ email });
+      if (foundUser === null)
+        return res.status(400).json({ error: "incorrect credentials" });
+      console.log("found user in login route", foundUser);
+      const validPass = await argon2.verify(
+        foundUser?.password as string,
+        password
+      );
+      if (!validPass)
+        return res.status(400).json({ error: "incorrect credentials" });
+      const token = signToken({
+        _id: foundUser?._id as string,
+        username: foundUser?.username as string,
+        email: foundUser?.email as string,
+        uuid: uuid.v4(),
+      });
+      const returnUser = {
+        token,
+        username: foundUser?.username,
+        email: foundUser?.email,
+        _id: foundUser?._id,
+        cards: [],
+      };
+      return res.status(200).json({ user: returnUser });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message || error });
     }
   },
   getAllUsers: async function (_: any, res: Response): Promise<Response> {
