@@ -20,6 +20,7 @@ export async function authMiddleware(
       }
     })
     .catch((error) => {
-      return res.status(500).json({ error: error.stack });
+      console.error("error when verifying token in middleware", error);
+      return res.status(500).json({ error: error.message || error });
     });
 }

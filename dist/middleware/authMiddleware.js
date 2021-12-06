@@ -27,7 +27,8 @@ function authMiddleware(req, res, next) {
             }
         })
             .catch((error) => {
-            return res.status(500).json({ error: error.stack });
+            console.error("error when verifying token in middleware", error);
+            return res.status(500).json({ error: error.message || error });
         });
     });
 }
