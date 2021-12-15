@@ -7,13 +7,14 @@ exports.signToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const { SECRET, EXPIRATION } = process.env;
 function signToken(args) {
-    const { username, _id, uuid: someUuid, email, } = args;
+    const { username, _id, role, uuid: someUuid, email, } = args;
     const { resetEmail, uuid, exp } = args;
     switch (true) {
-        case Boolean(username && someUuid && email && _id): {
+        case Boolean(username && someUuid && email && _id && role): {
             return jsonwebtoken_1.default.sign({
                 username,
                 _id,
+                role,
                 uuid: someUuid,
                 email,
             }, SECRET, { expiresIn: EXPIRATION });

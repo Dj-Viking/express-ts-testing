@@ -61,9 +61,12 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
+        const parsed = JSON.parse(createRes.text);
         expect(createRes.statusCode).toBe(201);
-        expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
-        newUserId = JSON.parse(createRes.text).user._id;
+        expect(typeof parsed.user._id).toBe("string");
+        newUserId = parsed.user._id;
+        expect(typeof parsed.user.role).toBe("string");
+        expect(parsed.user.role).toBe("user");
     }));
     test("GET /user/:id with a bogus object id", () => __awaiter(void 0, void 0, void 0, function* () {
         const invalidId = newUserId === null || newUserId === void 0 ? void 0 : newUserId.replace(newUserId[1], "f");
@@ -84,11 +87,13 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
+        const parsed = JSON.parse(createRes2.text);
         expect(createRes2.statusCode).toBe(201);
-        expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
-        newUserId = JSON.parse(createRes2.text).user._id;
-        expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
-        newUserToken = JSON.parse(createRes2.text).user.token;
+        expect(typeof parsed.user._id).toBe("string");
+        newUserId = parsed.user._id;
+        expect(typeof parsed.user.token).toBe("string");
+        expect(typeof parsed.user.role).toBe("string");
+        newUserToken = parsed.user.token;
     }));
     test("PUT /user/:id update the user with malformed token get jwt malformed error", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)

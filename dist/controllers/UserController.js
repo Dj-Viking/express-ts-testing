@@ -56,6 +56,7 @@ exports.UserController = {
                     return res.status(400).json({ error: "incorrect credentials" });
                 const token = (0, signToken_1.signToken)({
                     _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
+                    role: foundUser.role,
                     username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
                     email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
                     uuid: uuid.v4(),

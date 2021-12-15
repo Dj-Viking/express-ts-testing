@@ -4,7 +4,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 const router = Router();
 const {
   createUser,
-  getAllUsers,
+  // getAllUsers,
   updateUserById,
   getUserById,
   deleteUserById,
@@ -12,7 +12,8 @@ const {
 } = UserController;
 
 // /user
-router.route("/").post(createUser).get(getAllUsers);
+// TODO restrict get all users to admins only
+router.route("/").post(createUser); /*.get(getAllUsers);*/
 // /user/:id
 router
   .route("/:id")

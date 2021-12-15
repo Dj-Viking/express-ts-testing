@@ -16,12 +16,14 @@ export const UserService = {
       const { username, email, password } = args;
       const createdUser = await User.create({
         username,
+        role: "user",
         email,
         password,
       });
 
       const token = signToken({
         _id: createdUser._id,
+        role: "user",
         username,
         email,
         uuid: uuid.v4(),
@@ -32,6 +34,7 @@ export const UserService = {
         email: createdUser.email,
         _id: createdUser._id,
         token,
+        role: createdUser.role,
         createdAt: createdUser.createdAt,
         updatedAt: createdUser.updatedAt,
       };

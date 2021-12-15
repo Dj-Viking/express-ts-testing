@@ -20,11 +20,13 @@ exports.UserService = {
                 const { username, email, password } = args;
                 const createdUser = yield models_1.User.create({
                     username,
+                    role: "user",
                     email,
                     password,
                 });
                 const token = (0, signToken_1.signToken)({
                     _id: createdUser._id,
+                    role: "user",
                     username,
                     email,
                     uuid: uuid.v4(),
@@ -34,6 +36,7 @@ exports.UserService = {
                     email: createdUser.email,
                     _id: createdUser._id,
                     token,
+                    role: createdUser.role,
                     createdAt: createdUser.createdAt,
                     updatedAt: createdUser.updatedAt,
                 };

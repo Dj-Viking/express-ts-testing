@@ -41,6 +41,7 @@ export interface SignLoginRegisterMeTokenArgs {
   _id?: string;
   username: string;
   email: string;
+  role: string;
   uuid?: string;
 }
 export interface SignResetPasswordTokenArgs {
@@ -61,6 +62,7 @@ export interface ICreateUserResponse extends Object {
   username: string;
   email: string;
   _id: string;
+  role: string;
   token?: string;
   createdAt?: Date;
   updatedAt?: Date;

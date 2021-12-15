@@ -12,6 +12,7 @@ export function signToken(
   const {
     username,
     _id,
+    role,
     uuid: someUuid, //i think im aliasing here
     email,
   } = args as SignLoginRegisterMeTokenArgs;
@@ -19,11 +20,12 @@ export function signToken(
   const { resetEmail, uuid, exp } = args as SignResetPasswordTokenArgs;
 
   switch (true) {
-    case Boolean(username && someUuid && email && _id): {
+    case Boolean(username && someUuid && email && _id && role): {
       return jwt.sign(
         {
           username,
           _id,
+          role,
           uuid: someUuid,
           email,
         },

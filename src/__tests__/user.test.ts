@@ -67,9 +67,12 @@ describe("testing some crud stuff on users", () => {
     //   JSON.stringify(createRes, null, 2),
     //   "\x1b[00m"
     // );
+    const parsed = JSON.parse(createRes.text);
     expect(createRes.statusCode).toBe(201);
-    expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
-    newUserId = JSON.parse(createRes.text).user._id;
+    expect(typeof parsed.user._id).toBe("string");
+    newUserId = parsed.user._id;
+    expect(typeof parsed.user.role).toBe("string");
+    expect(parsed.user.role).toBe("user");
   });
   // test not found user
   test("GET /user/:id with a bogus object id", async () => {
@@ -108,11 +111,14 @@ describe("testing some crud stuff on users", () => {
     //   JSON.stringify(createRes2, null, 2),
     //   "\x1b[00m"
     // );
+    const parsed = JSON.parse(createRes2.text);
     expect(createRes2.statusCode).toBe(201);
-    expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
-    newUserId = JSON.parse(createRes2.text).user._id;
-    expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
-    newUserToken = JSON.parse(createRes2.text).user.token;
+    expect(typeof parsed.user._id).toBe("string");
+    newUserId = parsed.user._id;
+    expect(typeof parsed.user.token).toBe("string");
+    //decode token to see if it has a role property on it
+    expect(typeof parsed.user.role).toBe("string");
+    newUserToken = parsed.user.token;
   });
   // update user route test
   test("PUT /user/:id update the user with malformed token get jwt malformed error", async () => {
