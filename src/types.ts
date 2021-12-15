@@ -10,6 +10,7 @@ declare global {
       INVALID_SIGNATURE?: string;
       SECRET?: string;
       EXPIRATION?: string;
+      SUPER_SECRET?: string;
     }
   }
 }
