@@ -64,9 +64,10 @@ exports.UserController = {
                 const returnUser = {
                     token,
                     username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
+                    role: (foundUser === null || foundUser === void 0 ? void 0 : foundUser.role) || "user",
                     email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
                     _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
-                    cards: [],
+                    cards: (foundUser === null || foundUser === void 0 ? void 0 : foundUser.cards) || [],
                 };
                 return res.status(200).json({ user: returnUser });
             }
@@ -79,7 +80,7 @@ exports.UserController = {
     getAllUsers: function (_, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const allUsers = yield models_1.User.find({}).select("-__v");
+                const allUsers = yield models_1.User.find({}).select("-__v").select("-password");
                 return res.status(200).json({ users: allUsers });
             }
             catch (error) {

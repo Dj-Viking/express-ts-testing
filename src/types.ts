@@ -27,6 +27,7 @@ export interface IJwtData extends jwt.JwtPayload {
   username: string;
   email: string;
   uuid?: string;
+  role: "user" | "admin";
   resetEmail?: string;
   iat?: number;
   exp?: number;

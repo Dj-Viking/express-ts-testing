@@ -65,9 +65,10 @@ export const UserController = {
       const returnUser = {
         token,
         username: foundUser?.username,
+        role: foundUser?.role || "user",
         email: foundUser?.email,
         _id: foundUser?._id,
-        cards: [],
+        cards: foundUser?.cards || [],
       };
       return res.status(200).json({ user: returnUser });
     } catch (error) {
@@ -78,7 +79,7 @@ export const UserController = {
   getAllUsers: async function (_: any, res: Response): Promise<Response> {
     // console.log("get all users query");
     try {
-      const allUsers = await User.find({}).select("-__v");
+      const allUsers = await User.find({}).select("-__v").select("-password");
       return res.status(200).json({ users: allUsers });
     } catch (error) {
       return res.status(500).json({

@@ -1,4 +1,4 @@
-import { User } from "../../models";
+// import { User } from "../../models";
 import mongoose from "mongoose";
 const { SUPER_SECRET } = process.env;
 
@@ -13,5 +13,6 @@ mongoose
   })
   .catch((e) => {
     console.error(e);
+    mongoose.connection.close();
     process.exit(1);
   });

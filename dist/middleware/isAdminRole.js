@@ -8,25 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const { SUPER_SECRET } = process.env;
-mongoose_1.default
-    .connect(process.env.MONGODB_URI || "mongodb://localhost/rest-cats", {
-    autoIndex: true,
-})
-    .then(() => __awaiter(void 0, void 0, void 0, function* () {
-    if (!SUPER_SECRET)
-        process.exit(1);
-    mongoose_1.default.connection.close();
-    process.exit(0);
-}))
-    .catch((e) => {
-    console.error(e);
-    mongoose_1.default.connection.close();
-    process.exit(1);
-});
-//# sourceMappingURL=db-sandbox.js.map
+exports.isAdminRole = void 0;
+function isAdminRole(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!req.user)
+                return res.status(401).json({ message: "unauthorized" });
+            if (req.user.role !== "admin")
+                return res.status(403).json({ message: "forbidden" });
+            return next();
+        }
+        catch (error) {
+            console.error(error);
+            res
+                .status(500)
+                .json({ message: "oops! something went wrong, please try again later." });
+        }
+    });
+}
+exports.isAdminRole = isAdminRole;
+//# sourceMappingURL=isAdminRole.js.map
