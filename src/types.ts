@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request } from "express";
+import { mongoose } from "@typegoose/typegoose";
 
 declare global {
   namespace NodeJS {
@@ -61,11 +62,40 @@ export interface ICreateCardPayload extends Object {
   backsidePicture: string;
 }
 export interface ICreateUserResponse extends Object {
-  username: string;
-  email: string;
-  _id: string;
-  role: string;
-  token?: string;
+  user: {
+    username: string;
+    email: string;
+    _id: string;
+    role: string;
+    cards?: [];
+    token?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
+
+export interface ILoginResponse {
+  user: {
+    username: string;
+    email: string;
+    _id: string;
+    role: string;
+    cards: Array<ICard>;
+    token?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
+
+export interface ICard {
+  _id: string | mongoose.Types.ObjectId;
+  frontsideText?: string;
+  frontsideLanguage?: string;
+  frontsidePicture?: string;
+  backsideText?: string;
+  backsideLanguage?: string;
+  backsidePicture?: string;
+  creator?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

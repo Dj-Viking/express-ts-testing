@@ -1,7 +1,11 @@
 import request from "supertest";
 import mongoose from "mongoose";
 import { Card } from "../models";
-import { ICreateCardPayload } from "../types";
+import {
+  ICreateCardPayload,
+  ICreateUserResponse,
+  ILoginResponse,
+} from "../types";
 import createServer from "../app";
 import {
   LOCAL_DB_URL,
@@ -25,6 +29,8 @@ const app = createServer();
 let newCardId: string | null = null;
 let newUserId: string | null = null;
 let newUserToken: string | null = null;
+let secondUserId: string | null = null;
+let secondUserToken: string | null = null;
 
 describe("card CRUD stuff", () => {
   //create a user that will add cards to their library
@@ -34,6 +40,12 @@ describe("card CRUD stuff", () => {
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
     });
+    // console.log(
+    //   "\x1b[33m",
+    //   "create response \n",
+    //   JSON.stringify(createRes, null, 2),
+    //   "\x1b[00m"
+    // );
     expect(createRes.statusCode).toBe(201);
     expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
     newUserId = JSON.parse(createRes.text).user._id;
@@ -67,7 +79,7 @@ describe("card CRUD stuff", () => {
     expect(parsedJSON.cards).toHaveLength(1);
     expect(typeof parsedJSON.cards[0]).toBe("string");
     newCardId = parsedJSON.cards[0];
-    const createdCard = await Card.findOne({ _id: newCardId });
+    const createdCard = await Card.findOne({ _id: newCardId as string });
     expect(typeof createdCard?.frontsidePicture).toBe("string");
     expect(createdCard?.frontsidePicture).toBe("front side picture text");
   });
@@ -90,22 +102,50 @@ describe("card CRUD stuff", () => {
       .send({
         frontsideText: "updated front side text",
       });
-    // console.log(
-    //   "\x1b[33m",
-    //   "update response \n",
-    //   JSON.stringify(updateCardRes, null, 2),
-    //   "\x1b[00m"
-    // );
     expect(updateCardRes.statusCode).toBe(200);
     expect(JSON.parse(updateCardRes.text).card.frontsideText).toBe(
       "updated front side text"
     );
   });
+  test("POST /user/login see if we get an array of card objects instead of ids", async () => {
+    const login = await request(app).post("/user/login").send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+    });
+    const parsed = JSON.parse(login.text) as ILoginResponse;
+    expect(login.statusCode).toBe(200);
+    expect(parsed.user.cards).toHaveLength(1);
+    expect(parsed.user.cards[0].backsideText).toBe("hello");
+  });
+  test("POST /user create a second user who will try and fail to edit a card that is not their own", async () => {
+    const secondUser = await request(app).post("/user").send({
+      username: "second user",
+      email: "seconduser@email.com",
+      password: "some password",
+    });
+    const parsed = JSON.parse(secondUser.text) as ICreateUserResponse;
+    expect(secondUser.statusCode).toBe(201);
+    expect(typeof parsed.user._id).toBe("string");
+    secondUserId = parsed.user._id;
+    expect(typeof parsed.user.token).toBe("string");
+    secondUserToken = parsed.user.token as string;
+  });
+  test("PUT /card/:id test that a user can only update their own cards", async () => {
+    const notOwnCard = await request(app)
+      .put(`/card/${newCardId}`)
+      .set({ authorization: `Bearer ${secondUserToken}` })
+      .send({
+        frontsideText: "shouldn't update here",
+      });
+    expect(notOwnCard.statusCode).toBe(403);
+  });
   //delete card
   test("delete the card we just made", async () => {
-    await Card.findOneAndDelete({ _id: newCardId });
+    await Card.findOneAndDelete({ _id: newCardId as string });
   });
-  test("delete the user we just made", async () => {
+  //delete test user
+  test("delete the users we just made", async () => {
     await User.findOneAndDelete({ _id: newUserId });
+    await User.findOneAndDelete({ _id: secondUserId });
   });
 });

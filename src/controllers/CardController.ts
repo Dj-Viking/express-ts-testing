@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Card, User } from "../models";
 import { Response } from "express";
 import { Express } from "../types";
@@ -11,6 +12,7 @@ export const CardController = {
     try {
       // console.log("do i have req.user as the decoded token", req.user);
       const createdCard = await Card.create({
+        _id: new mongoose.Types.ObjectId(),
         ...req.body,
       });
       const updatedCardWithCreatorId = await Card.findOneAndUpdate(
@@ -42,19 +44,7 @@ export const CardController = {
     req: Express.MyRequest,
     res: Response
   ): Promise<Response> {
-    // TODO make params middleware to verify if a user exists with that ID
-    const foundCard = await Card.findOne({ _id: req.params.id });
-    if (foundCard === null) {
-      return res.status(404).json({ message: "card not found" });
-    }
     try {
-      // console.log(
-      //   "\x1b[33m",
-      //   "request to update a card",
-      //   "\x1b[00m",
-      //   req.body,
-      //   req.params
-      // );
       const updatedCard = await Card.findOneAndUpdate(
         {
           _id: req.params.id,

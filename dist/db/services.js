@@ -32,13 +32,15 @@ exports.UserService = {
                     uuid: uuid.v4(),
                 });
                 return {
-                    username: createdUser.username,
-                    email: createdUser.email,
-                    _id: createdUser._id,
-                    token,
-                    role: createdUser.role,
-                    createdAt: createdUser.createdAt,
-                    updatedAt: createdUser.updatedAt,
+                    user: {
+                        username: createdUser.username,
+                        email: createdUser.email,
+                        _id: createdUser._id,
+                        token,
+                        role: createdUser.role,
+                        createdAt: createdUser.createdAt,
+                        updatedAt: createdUser.updatedAt,
+                    },
                 };
             }
             catch (error) {

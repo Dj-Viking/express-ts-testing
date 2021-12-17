@@ -28,6 +28,8 @@ const app = (0, app_1.default)();
 let newCardId = null;
 let newUserId = null;
 let newUserToken = null;
+let secondUserId = null;
+let secondUserToken = null;
 describe("card CRUD stuff", () => {
     test("POST /user create a new user to start adding cards to their library", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
@@ -82,11 +84,44 @@ describe("card CRUD stuff", () => {
         expect(updateCardRes.statusCode).toBe(200);
         expect(JSON.parse(updateCardRes.text).card.frontsideText).toBe("updated front side text");
     }));
+    test("POST /user/login see if we get an array of card objects instead of ids", () => __awaiter(void 0, void 0, void 0, function* () {
+        const login = yield (0, supertest_1.default)(app).post("/user/login").send({
+            email: constants_1.TEST_EMAIL,
+            password: constants_1.TEST_PASSWORD,
+        });
+        const parsed = JSON.parse(login.text);
+        expect(login.statusCode).toBe(200);
+        expect(parsed.user.cards).toHaveLength(1);
+        expect(parsed.user.cards[0].backsideText).toBe("hello");
+    }));
+    test("POST /user create a second user who will try and fail to edit a card that is not their own", () => __awaiter(void 0, void 0, void 0, function* () {
+        const secondUser = yield (0, supertest_1.default)(app).post("/user").send({
+            username: "second user",
+            email: "seconduser@email.com",
+            password: "some password",
+        });
+        const parsed = JSON.parse(secondUser.text);
+        expect(secondUser.statusCode).toBe(201);
+        expect(typeof parsed.user._id).toBe("string");
+        secondUserId = parsed.user._id;
+        expect(typeof parsed.user.token).toBe("string");
+        secondUserToken = parsed.user.token;
+    }));
+    test("PUT /card/:id test that a user can only update their own cards", () => __awaiter(void 0, void 0, void 0, function* () {
+        const notOwnCard = yield (0, supertest_1.default)(app)
+            .put(`/card/${newCardId}`)
+            .set({ authorization: `Bearer ${secondUserToken}` })
+            .send({
+            frontsideText: "shouldn't update here",
+        });
+        expect(notOwnCard.statusCode).toBe(403);
+    }));
     test("delete the card we just made", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_1.Card.findOneAndDelete({ _id: newCardId });
     }));
-    test("delete the user we just made", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("delete the users we just made", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_2.User.findOneAndDelete({ _id: newUserId });
+        yield models_2.User.findOneAndDelete({ _id: secondUserId });
     }));
 });
 //# sourceMappingURL=card.test.js.map
