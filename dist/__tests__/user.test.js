@@ -61,18 +61,45 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
+        const parsed = JSON.parse(createRes.text);
         expect(createRes.statusCode).toBe(201);
-        expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
-        newUserId = JSON.parse(createRes.text).user._id;
+        expect(typeof parsed.user._id).toBe("string");
+        newUserId = parsed.user._id;
+        expect(typeof parsed.user.role).toBe("string");
+        expect(typeof parsed.user.token).toBe("string");
+        newUserToken = parsed.user.token;
+        expect(parsed.user.role).toBe("user");
+    }));
+    test("GET /user any user cannot query all users", () => __awaiter(void 0, void 0, void 0, function* () {
+        const cannotGet = yield (0, supertest_1.default)(app)
+            .get("/user")
+            .set({
+            authorization: `Bearer ${newUserToken}`,
+        });
+        expect(cannotGet.statusCode).toBe(403);
     }));
     test("GET /user/:id with a bogus object id", () => __awaiter(void 0, void 0, void 0, function* () {
         const invalidId = newUserId === null || newUserId === void 0 ? void 0 : newUserId.replace(newUserId[1], "f");
-        const notFound = yield (0, supertest_1.default)(app).get(`/user/${invalidId}`);
+        const notFound = yield (0, supertest_1.default)(app)
+            .get(`/user/${invalidId}`)
+            .set({
+            authorization: `Bearer ${newUserToken}`,
+        });
         expect(notFound.statusCode).toBe(404);
         expect(JSON.parse(notFound.text).message).toBe("user not found");
     }));
+    test("GET /user/:id the user we just created in previous test without a token", () => __awaiter(void 0, void 0, void 0, function* () {
+        const getUser = yield (0, supertest_1.default)(app)
+            .get(`/user/${newUserId}`)
+            .set({ authorization: `Bearer kdfkdjf` });
+        expect(getUser.statusCode).toBe(403);
+    }));
     test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
-        const getUserRes = yield (0, supertest_1.default)(app).get(`/user/${newUserId}`);
+        const getUserRes = yield (0, supertest_1.default)(app)
+            .get(`/user/${newUserId}`)
+            .set({
+            authorization: `Bearer ${newUserToken}`,
+        });
         expect(getUserRes.statusCode).toBe(200);
     }));
     test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -84,11 +111,13 @@ describe("testing some crud stuff on users", () => {
             email: constants_1.TEST_EMAIL,
             password: constants_1.TEST_PASSWORD,
         });
+        const parsed = JSON.parse(createRes2.text);
         expect(createRes2.statusCode).toBe(201);
-        expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
-        newUserId = JSON.parse(createRes2.text).user._id;
-        expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
-        newUserToken = JSON.parse(createRes2.text).user.token;
+        expect(typeof parsed.user._id).toBe("string");
+        newUserId = parsed.user._id;
+        expect(typeof parsed.user.token).toBe("string");
+        expect(typeof parsed.user.role).toBe("string");
+        newUserToken = parsed.user.token;
     }));
     test("PUT /user/:id update the user with malformed token get jwt malformed error", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
@@ -119,11 +148,32 @@ describe("testing some crud stuff on users", () => {
         expect(updateRes.statusCode).toBe(403);
         expect(JSON.parse(updateRes.text).error.message).toBe("invalid signature");
     }));
+    test("PUT /user/:id update the user just made when id in params doesn't match the id of the requestor should 403", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/jdfkj`)
+            .set({ authorization: `Bearer ${newUserToken}` })
+            .send({ username: "updated username", email: "updated email" });
+        expect(updateRes.statusCode).toBe(403);
+    }));
+    test("PUT /user/:id any user should not be able to update their role from user to admin", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ${newUserToken}` })
+            .send({
+            username: "updated username",
+            email: "updated email",
+            role: "admin",
+        });
+        expect(updateRes.statusCode).toBe(403);
+    }));
     test("PUT /user/:id update the user we just made with a valid token", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
             .put(`/user/${newUserId}`)
             .set({ authorization: `Bearer ${newUserToken}` })
-            .send({ username: "updated username", email: "updated email" });
+            .send({
+            username: "updated username",
+            email: "updated email",
+        });
         expect(updateRes.statusCode).toBe(200);
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");

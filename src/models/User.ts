@@ -26,6 +26,9 @@ export class UserClass {
   public cards?: Ref<CardClass>[]; // This is a Reference Array
 
   @prop()
+  public role: string;
+
+  @prop()
   public createdAt: Date;
 
   @prop()

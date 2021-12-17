@@ -1,6 +1,12 @@
 import { prop } from "@typegoose/typegoose";
+import mongoose from "mongoose";
 
 export class CardClass {
+  //so that i can cast the string id into the object when querying for a user's cards and return the card objects
+  // instead of returning just the card's string ids
+  @prop()
+  public _id: mongoose.Types.ObjectId;
+
   @prop()
   public frontsideText?: string;
 

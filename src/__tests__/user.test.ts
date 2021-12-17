@@ -67,23 +67,51 @@ describe("testing some crud stuff on users", () => {
     //   JSON.stringify(createRes, null, 2),
     //   "\x1b[00m"
     // );
+    const parsed = JSON.parse(createRes.text);
     expect(createRes.statusCode).toBe(201);
-    expect(typeof JSON.parse(createRes.text).user._id).toBe("string");
-    newUserId = JSON.parse(createRes.text).user._id;
+    expect(typeof parsed.user._id).toBe("string");
+    newUserId = parsed.user._id;
+    expect(typeof parsed.user.role).toBe("string");
+    expect(typeof parsed.user.token).toBe("string");
+    newUserToken = parsed.user.token;
+    expect(parsed.user.role).toBe("user");
+  });
+  test("GET /user any user cannot query all users", async () => {
+    const cannotGet = await request(app)
+      .get("/user")
+      .set({
+        authorization: `Bearer ${newUserToken}`,
+      });
+    expect(cannotGet.statusCode).toBe(403);
   });
   // test not found user
   test("GET /user/:id with a bogus object id", async () => {
     // console.log("previous id", newUserId);
     const invalidId = newUserId?.replace(newUserId[1], "f");
     // console.log("created invalid id", invalidId);
-    const notFound = await request(app).get(`/user/${invalidId}`);
+    const notFound = await request(app)
+      .get(`/user/${invalidId}`)
+      .set({
+        authorization: `Bearer ${newUserToken}`,
+      });
     expect(notFound.statusCode).toBe(404);
     expect(JSON.parse(notFound.text).message).toBe("user not found");
+  });
+  test("GET /user/:id the user we just created in previous test without a token", async () => {
+    const getUser = await request(app)
+      .get(`/user/${newUserId}`)
+      .set({ authorization: `Bearer kdfkdjf` });
+
+    expect(getUser.statusCode).toBe(403);
   });
   // get that user we just made make sure they were made and the get user route works
   test("GET /user/:id the user we just created in the previous test", async () => {
     // console.log("what is user id here", newUserId);
-    const getUserRes = await request(app).get(`/user/${newUserId}`);
+    const getUserRes = await request(app)
+      .get(`/user/${newUserId}`)
+      .set({
+        authorization: `Bearer ${newUserToken}`,
+      });
     // console.log(
     //   "\x1b[33m",
     //   "create response \n",
@@ -108,11 +136,13 @@ describe("testing some crud stuff on users", () => {
     //   JSON.stringify(createRes2, null, 2),
     //   "\x1b[00m"
     // );
+    const parsed = JSON.parse(createRes2.text);
     expect(createRes2.statusCode).toBe(201);
-    expect(typeof JSON.parse(createRes2.text).user._id).toBe("string");
-    newUserId = JSON.parse(createRes2.text).user._id;
-    expect(typeof JSON.parse(createRes2.text).user.token).toBe("string");
-    newUserToken = JSON.parse(createRes2.text).user.token;
+    expect(typeof parsed.user._id).toBe("string");
+    newUserId = parsed.user._id;
+    expect(typeof parsed.user.token).toBe("string");
+    expect(typeof parsed.user.role).toBe("string");
+    newUserToken = parsed.user.token;
   });
   // update user route test
   test("PUT /user/:id update the user with malformed token get jwt malformed error", async () => {
@@ -162,11 +192,33 @@ describe("testing some crud stuff on users", () => {
     expect(updateRes.statusCode).toBe(403);
     expect(JSON.parse(updateRes.text).error.message).toBe("invalid signature");
   });
+  test("PUT /user/:id update the user just made when id in params doesn't match the id of the requestor should 403", async () => {
+    const updateRes = await request(app)
+      .put(`/user/jdfkj`)
+      .set({ authorization: `Bearer ${newUserToken}` })
+      .send({ username: "updated username", email: "updated email" });
+
+    expect(updateRes.statusCode).toBe(403);
+  });
+  test("PUT /user/:id any user should not be able to update their role from user to admin", async () => {
+    const updateRes = await request(app)
+      .put(`/user/${newUserId}`)
+      .set({ authorization: `Bearer ${newUserToken}` })
+      .send({
+        username: "updated username",
+        email: "updated email",
+        role: "admin",
+      });
+    expect(updateRes.statusCode).toBe(403);
+  });
   test("PUT /user/:id update the user we just made with a valid token", async () => {
     const updateRes = await request(app)
       .put(`/user/${newUserId}`)
       .set({ authorization: `Bearer ${newUserToken}` })
-      .send({ username: "updated username", email: "updated email" });
+      .send({
+        username: "updated username",
+        email: "updated email",
+      });
     // console.log(
     //   "\x1b[33m",
     //   "update response with valid token \n",

@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { UserController } from "../controllers/UserController";
-import { authMiddleware } from "../middleware/authMiddleware";
+import {
+  authMiddleware,
+  isUserRole,
+  isAdminRole,
+  updateOnlyAsSelfOrAdmin,
+  updateRoleOnlyAsAdmin,
+} from "../middleware";
 const router = Router();
 const {
   createUser,
@@ -12,13 +18,23 @@ const {
 } = UserController;
 
 // /user
-router.route("/").post(createUser).get(getAllUsers);
+// TODO restrict get all users to admins only
+router
+  .route("/")
+  .post(createUser)
+  .get(authMiddleware, isAdminRole, getAllUsers);
 // /user/:id
 router
   .route("/:id")
-  .put(authMiddleware, updateUserById)
-  .get(getUserById)
-  .delete(deleteUserById);
+  .put(
+    authMiddleware,
+    isUserRole,
+    updateOnlyAsSelfOrAdmin,
+    updateRoleOnlyAsAdmin,
+    updateUserById
+  )
+  .get(authMiddleware, isUserRole, getUserById)
+  .delete(authMiddleware, isAdminRole, deleteUserById);
 
 // /user/login
 router.route("/login").post(login);

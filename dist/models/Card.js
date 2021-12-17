@@ -8,11 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CardClass = void 0;
 const typegoose_1 = require("@typegoose/typegoose");
+const mongoose_1 = __importDefault(require("mongoose"));
 class CardClass {
 }
+__decorate([
+    (0, typegoose_1.prop)(),
+    __metadata("design:type", mongoose_1.default.Types.ObjectId)
+], CardClass.prototype, "_id", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
     __metadata("design:type", String)

@@ -55,6 +55,10 @@ __decorate([
 ], UserClass.prototype, "cards", void 0);
 __decorate([
     (0, typegoose_1.prop)(),
+    __metadata("design:type", String)
+], UserClass.prototype, "role", void 0);
+__decorate([
+    (0, typegoose_1.prop)(),
     __metadata("design:type", Date)
 ], UserClass.prototype, "createdAt", void 0);
 __decorate([

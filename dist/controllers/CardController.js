@@ -8,15 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CardController = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 exports.CardController = {
     createCard: function (req, res) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const createdCard = yield models_1.Card.create(Object.assign({}, req.body));
+                const createdCard = yield models_1.Card.create(Object.assign({ _id: new mongoose_1.default.Types.ObjectId() }, req.body));
                 const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
                     creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
                 }, { new: true }).select("-__v");
@@ -35,10 +39,6 @@ exports.CardController = {
     },
     updateCardById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundCard = yield models_1.Card.findOne({ _id: req.params.id });
-            if (foundCard === null) {
-                return res.status(404).json({ message: "card not found" });
-            }
             try {
                 const updatedCard = yield models_1.Card.findOneAndUpdate({
                     _id: req.params.id,

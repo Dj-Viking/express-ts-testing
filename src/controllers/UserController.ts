@@ -1,4 +1,5 @@
-import { User } from "../models";
+import mongoose from "mongoose";
+import { User, Card } from "../models";
 import { Express } from "../types";
 import { Response } from "express";
 import { UserService } from "../db/services";
@@ -21,7 +22,7 @@ export const UserController = {
         email,
         password,
       });
-      return res.status(201).json({ user });
+      return res.status(201).json({ user: user.user });
     } catch (error) {
       let errorsObj = {} as { username: any; email: any; password: any };
       if (error.errors) {
@@ -57,16 +58,27 @@ export const UserController = {
         return res.status(400).json({ error: "incorrect credentials" });
       const token = signToken({
         _id: foundUser?._id as string,
+        role: foundUser.role as string,
         username: foundUser?.username as string,
         email: foundUser?.email as string,
         uuid: uuid.v4(),
       });
+      //casting the id strings into the objects themselves
+      const ids = foundUser?.cards?.map((card) => {
+        return new mongoose.Types.ObjectId(card?._id);
+      });
+      //get the users cards
+      const userCards = await Card.find({
+        _id: { $in: ids },
+      }).select("-__v");
+
       const returnUser = {
         token,
         username: foundUser?.username,
+        role: foundUser?.role || "user",
         email: foundUser?.email,
         _id: foundUser?._id,
-        cards: [],
+        cards: userCards,
       };
       return res.status(200).json({ user: returnUser });
     } catch (error) {
@@ -77,7 +89,7 @@ export const UserController = {
   getAllUsers: async function (_: any, res: Response): Promise<Response> {
     // console.log("get all users query");
     try {
-      const allUsers = await User.find({}).select("-__v");
+      const allUsers = await User.find({}).select("-__v").select("-password");
       return res.status(200).json({ users: allUsers });
     } catch (error) {
       return res.status(500).json({

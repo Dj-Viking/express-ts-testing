@@ -8,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 const services_1 = require("../db/services");
 const formatError_1 = require("../utils/formatError");
@@ -26,7 +30,7 @@ exports.UserController = {
                     email,
                     password,
                 });
-                return res.status(201).json({ user });
+                return res.status(201).json({ user: user.user });
             }
             catch (error) {
                 let errorsObj = {};
@@ -45,6 +49,7 @@ exports.UserController = {
         });
     },
     login: function (req, res) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
@@ -56,16 +61,24 @@ exports.UserController = {
                     return res.status(400).json({ error: "incorrect credentials" });
                 const token = (0, signToken_1.signToken)({
                     _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
+                    role: foundUser.role,
                     username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
                     email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
                     uuid: uuid.v4(),
                 });
+                const ids = (_a = foundUser === null || foundUser === void 0 ? void 0 : foundUser.cards) === null || _a === void 0 ? void 0 : _a.map((card) => {
+                    return new mongoose_1.default.Types.ObjectId(card === null || card === void 0 ? void 0 : card._id);
+                });
+                const userCards = yield models_1.Card.find({
+                    _id: { $in: ids },
+                }).select("-__v");
                 const returnUser = {
                     token,
                     username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
+                    role: (foundUser === null || foundUser === void 0 ? void 0 : foundUser.role) || "user",
                     email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
                     _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
-                    cards: [],
+                    cards: userCards,
                 };
                 return res.status(200).json({ user: returnUser });
             }
@@ -78,7 +91,7 @@ exports.UserController = {
     getAllUsers: function (_, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const allUsers = yield models_1.User.find({}).select("-__v");
+                const allUsers = yield models_1.User.find({}).select("-__v").select("-password");
                 return res.status(200).json({ users: allUsers });
             }
             catch (error) {

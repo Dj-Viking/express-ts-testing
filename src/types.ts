@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request } from "express";
+import { mongoose } from "@typegoose/typegoose";
 
 declare global {
   namespace NodeJS {
@@ -10,6 +11,7 @@ declare global {
       INVALID_SIGNATURE?: string;
       SECRET?: string;
       EXPIRATION?: string;
+      SUPER_SECRET?: string;
     }
   }
 }
@@ -26,6 +28,7 @@ export interface IJwtData extends jwt.JwtPayload {
   username: string;
   email: string;
   uuid?: string;
+  role: "user" | "admin";
   resetEmail?: string;
   iat?: number;
   exp?: number;
@@ -41,6 +44,7 @@ export interface SignLoginRegisterMeTokenArgs {
   _id?: string;
   username: string;
   email: string;
+  role: string;
   uuid?: string;
 }
 export interface SignResetPasswordTokenArgs {
@@ -58,10 +62,40 @@ export interface ICreateCardPayload extends Object {
   backsidePicture: string;
 }
 export interface ICreateUserResponse extends Object {
-  username: string;
-  email: string;
-  _id: string;
-  token?: string;
+  user: {
+    username: string;
+    email: string;
+    _id: string;
+    role: string;
+    cards?: [];
+    token?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
+
+export interface ILoginResponse {
+  user: {
+    username: string;
+    email: string;
+    _id: string;
+    role: string;
+    cards: Array<ICard>;
+    token?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
+}
+
+export interface ICard {
+  _id: string | mongoose.Types.ObjectId;
+  frontsideText?: string;
+  frontsideLanguage?: string;
+  frontsidePicture?: string;
+  backsideText?: string;
+  backsideLanguage?: string;
+  backsidePicture?: string;
+  creator?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
