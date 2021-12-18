@@ -3,6 +3,8 @@ import {
   SignLoginRegisterMeTokenArgs,
   SignResetPasswordTokenArgs,
 } from "../types";
+import { readEnv } from "../utils/readEnv";
+readEnv();
 
 const { SECRET, EXPIRATION } = process.env;
 

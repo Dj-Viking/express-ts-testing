@@ -1,4 +1,4 @@
-.env
+env.txt
 node_modules
 secret.txt
 expiration.txt
