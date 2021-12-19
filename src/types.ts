@@ -12,6 +12,7 @@ declare global {
       SECRET?: string;
       EXPIRATION?: string;
       SUPER_SECRET?: string;
+      TEST_ENV?: string;
     }
   }
 }

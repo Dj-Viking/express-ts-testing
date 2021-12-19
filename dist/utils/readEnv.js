@@ -6,12 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.readEnv = void 0;
 const fs_1 = __importDefault(require("fs"));
 function readEnv() {
-    const env = fs_1.default.readFileSync("./env.txt", { encoding: "utf-8" }).split("\n");
+    var _a;
     let entries = {};
-    for (let i = 0; i < env.length; i++) {
-        entries = Object.assign(Object.assign({}, entries), { [env[i].split("=")[0]]: env[i].split("=")[1].replace(/'/g, "") });
+    let env;
+    try {
+        env = fs_1.default.readFileSync("./env.txt", { encoding: "utf-8" });
+        env = env.split("\n");
+        for (let i = 0; i < env.length; i++) {
+            entries = Object.assign(Object.assign({}, entries), { [env[i].split("=")[0]]: env[i].split("=")[1].replace(/'/g, "") });
+        }
+        process.env = Object.assign(Object.assign({}, process.env), entries);
     }
-    process.env = Object.assign(Object.assign({}, process.env), entries);
+    catch (error) {
+        env = (_a = process.env.TEST_ENV) === null || _a === void 0 ? void 0 : _a.split("\n");
+        for (let i = 0; i < (env === null || env === void 0 ? void 0 : env.length); i++) {
+            entries = Object.assign(Object.assign({}, entries), { [env[i].split("=")[0]]: env[i].split("=")[1].replace(/'/g, "") });
+            process.env = Object.assign(Object.assign({}, process.env), entries);
+        }
+    }
 }
 exports.readEnv = readEnv;
+readEnv();
 //# sourceMappingURL=readEnv.js.map
