@@ -24,11 +24,11 @@ export function readEnv(): void {
         ...entries,
         [env[i].split("=")[0]]: env[i].split("=")[1].replace(/'/g, ""),
       };
-      process.env = {
-        ...process.env,
-        ...entries,
-      };
     }
+    process.env = {
+      ...process.env,
+      ...entries,
+    };
   }
 }
 readEnv();
