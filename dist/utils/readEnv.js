@@ -18,7 +18,7 @@ function readEnv() {
         process.env = Object.assign(Object.assign({}, process.env), entries);
     }
     catch (error) {
-        env = (_a = process.env.TEST_ENV) === null || _a === void 0 ? void 0 : _a.split("\n");
+        env = (_a = process.env.ENV_TXT) === null || _a === void 0 ? void 0 : _a.split("\n");
         for (let i = 0; i < (env === null || env === void 0 ? void 0 : env.length); i++) {
             entries = Object.assign(Object.assign({}, entries), { [env[i].split("=")[0]]: env[i].split("=")[1].replace(/'/g, "") });
             process.env = Object.assign(Object.assign({}, process.env), entries);

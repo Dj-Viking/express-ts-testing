@@ -46,4 +46,4 @@ jobs:
           EXPIRED_TOKEN: ${{ secrets.EXPIRED_TOKEN }}
           INVALID_SIGNATURE: ${{ secrets.INVALID_SIGNATURE }}
           SECRET: ${{ secrets.SECRET }}
-          TEST_ENV: ${{ secrets.TEST_ENV }}
+          ENV_TXT: ${{ secrets.TEST_ENV }}

@@ -18,7 +18,7 @@ export function readEnv(): void {
       ...entries,
     };
   } catch (error) {
-    env = process.env.TEST_ENV?.split("\n") as string[];
+    env = process.env.ENV_TXT?.split("\n") as string[];
     for (let i = 0; i < env?.length; i++) {
       entries = {
         ...entries,
