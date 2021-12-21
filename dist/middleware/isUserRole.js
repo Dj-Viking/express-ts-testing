@@ -13,8 +13,6 @@ exports.isUserRole = void 0;
 function isUserRole(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (!req.user)
-                return res.status(401).json({ message: "unauthorized" });
             if (req.user.role !== "user")
                 return res.status(403).json({
                     message: "forbidden, please contact your administrator to set your role permissions properly",
