@@ -6,8 +6,8 @@
   "scripts": {
     "clear:jest": "jest --clearCache",
     "test:config": "jest --showConfig",
-    "test": "NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
-    "test:ci": "jest --verbose --detectOpenHandles",
+    "test": "ENV_TXT=$(cat env.txt) NODE_ENV=ci jest --verbose --detectOpenHandles --watchAll --coverage",
+    "test:ci": "jest --verbose --detectOpenHandles --coverage",
     "tsw": "tsc -w",
     "read:env": "node dist/utils/readEnv.js",
     "tsc": "tsc",

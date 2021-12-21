@@ -53,6 +53,8 @@ exports.UserController = {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
+                if (!password)
+                    return res.status(422).json({ error: "unprocessable entity" });
                 const foundUser = yield models_1.User.findOne({ email });
                 if (foundUser === null)
                     return res.status(400).json({ error: "incorrect credentials" });

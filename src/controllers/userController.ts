@@ -49,6 +49,8 @@ export const UserController = {
   ): Promise<Response> {
     try {
       const { email, password } = req.body;
+      if (!password)
+        return res.status(422).json({ error: "unprocessable entity" });
       const foundUser = await User.findOne({ email });
       if (foundUser === null)
         return res.status(400).json({ error: "incorrect credentials" });

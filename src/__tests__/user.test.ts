@@ -145,6 +145,24 @@ describe("testing some crud stuff on users", () => {
     newUserToken = parsed.user.token;
   });
   // update user route test
+  test("PUT /user/:id update the user with blank token get 401 status code", async () => {
+    const updateRes = await request(app)
+      .put(`/user/${newUserId}`)
+      .set({ authorization: `Bearer ` })
+      .send({
+        username: "updated username",
+        email: "updated email",
+      });
+    // console.log(
+    //   "\x1b[33m",
+    //   "update res with malformed token \n",
+    //   JSON.stringify(updateRes, null, 2),
+    //   "\x1b[00m"
+    // );
+    expect(updateRes.statusCode).toBe(401);
+    expect(JSON.parse(updateRes.text).error).toBe("not authenticated");
+  });
+  // update user route test
   test("PUT /user/:id update the user with malformed token get jwt malformed error", async () => {
     const updateRes = await request(app)
       .put(`/user/${newUserId}`)
@@ -245,6 +263,7 @@ describe("testing some crud stuff on users", () => {
     const parsed = JSON.parse(loginRes.text);
     expect(typeof parsed.user.token).toBe("string");
   });
+  // test("POST /user/forgot")
   // login test incorrect credentials error
   test("POST /user/login test with garbage email the login errors appear", async () => {
     const badCreds = await request(app).post("/user/login").send({
@@ -262,7 +281,7 @@ describe("testing some crud stuff on users", () => {
     expect(badCreds.statusCode).toBe(400);
     expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
   });
-  test("delete the user we just made with the mongo client", async () => {
+  test("delete the user we just made with the mongoose client", async () => {
     await User.findOneAndDelete({ _id: newUserId });
   });
 });

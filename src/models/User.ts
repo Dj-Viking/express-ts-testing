@@ -1,13 +1,8 @@
-import { pre, prop, plugin, Ref, DocumentType } from "@typegoose/typegoose";
+import { prop, plugin, Ref, DocumentType } from "@typegoose/typegoose";
 import { CardClass } from "./Card";
 import argon2 from "argon2";
 import mongooseUniqueValidator from "mongoose-unique-validator";
 
-@pre<UserClass>("save", async function (next) {
-  if (this.isNew || this.isModified("password"))
-    this.password = await argon2.hash(this.password);
-  next();
-})
 @plugin(mongooseUniqueValidator)
 export class UserClass {
   @prop({ required: true, unique: true })

@@ -119,6 +119,17 @@ describe("testing some crud stuff on users", () => {
         expect(typeof parsed.user.role).toBe("string");
         newUserToken = parsed.user.token;
     }));
+    test("PUT /user/:id update the user with blank token get 401 status code", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ` })
+            .send({
+            username: "updated username",
+            email: "updated email",
+        });
+        expect(updateRes.statusCode).toBe(401);
+        expect(JSON.parse(updateRes.text).error).toBe("not authenticated");
+    }));
     test("PUT /user/:id update the user with malformed token get jwt malformed error", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
             .put(`/user/${newUserId}`)
@@ -203,7 +214,7 @@ describe("testing some crud stuff on users", () => {
         expect(badCreds.statusCode).toBe(400);
         expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
     }));
-    test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("delete the user we just made with the mongoose client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_1.User.findOneAndDelete({ _id: newUserId });
     }));
 });

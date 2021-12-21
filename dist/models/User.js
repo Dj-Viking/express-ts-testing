@@ -66,13 +66,6 @@ __decorate([
     __metadata("design:type", Date)
 ], UserClass.prototype, "updatedAt", void 0);
 UserClass = __decorate([
-    (0, typegoose_1.pre)("save", function (next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.isNew || this.isModified("password"))
-                this.password = yield argon2_1.default.hash(this.password);
-            next();
-        });
-    }),
     (0, typegoose_1.plugin)(mongoose_unique_validator_1.default)
 ], UserClass);
 exports.UserClass = UserClass;

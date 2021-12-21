@@ -94,6 +94,9 @@ describe("card CRUD stuff", () => {
     expect(notFound.statusCode).toBe(404);
     expect(JSON.parse(notFound.text).message).toBe("card not found");
   });
+  // test("PUT /card/:id update card to try and make the server return 500 error", async () => {
+  //   const update = await request(app).put(`/card/${newCardId}`)
+  // });
   //edit card
   test("PUT /card/:id update a card by it's id", async () => {
     const updateCardRes = await request(app)
