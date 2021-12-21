@@ -20,12 +20,7 @@ function cardNotFound(req, res, next) {
                 return res.status(404).json({ message: "card not found" });
             return next();
         }
-        catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                message: "Oops sorry this request could not be processed, please try again later.",
-            });
-        }
+        catch (error) { }
     });
 }
 exports.cardNotFound = cardNotFound;

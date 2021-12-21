@@ -49,7 +49,7 @@ export const UserController = {
   ): Promise<Response> {
     try {
       const { email, password } = req.body;
-      if (!password)
+      if (!password || !email)
         return res.status(422).json({ error: "unprocessable entity" });
       const foundUser = await User.findOne({ email });
       if (foundUser === null)
@@ -59,15 +59,17 @@ export const UserController = {
       if (!validPass)
         return res.status(400).json({ error: "incorrect credentials" });
       const token = signToken({
-        _id: foundUser?._id as string,
+        _id: foundUser._id as string,
         role: foundUser.role as string,
-        username: foundUser?.username as string,
-        email: foundUser?.email as string,
+        username: foundUser.username as string,
+        email: foundUser.email as string,
         uuid: uuid.v4(),
       });
       //casting the id strings into the objects themselves
-      const ids = foundUser?.cards?.map((card) => {
-        return new mongoose.Types.ObjectId(card?._id);
+      // @ts-expect-error found user is found if we are here
+      const ids = foundUser.cards.map((card) => {
+        // @ts-expect-error the cards should be defined during testing otherwise a real situation will yield an empty array if the user didn't have cards
+        return new mongoose.Types.ObjectId(card._id);
       });
       //get the users cards
       const userCards = await Card.find({
@@ -115,28 +117,6 @@ export const UserController = {
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
-    }
-  },
-  deleteUserById: async function (
-    req: Express.MyRequest,
-    res: Response
-  ): Promise<Response> {
-    try {
-      // TODO make middleware to verify if a user exists with that ID
-      const foundUser = await User.findOne({ _id: req.params.id }).select(
-        "-__v"
-      );
-      if (foundUser === null) {
-        return res.status(404).json({ message: "user not found" });
-      }
-      const deleteRes = await User.findOneAndDelete({ _id: req.params.id });
-      // console.log("delete response", deleteRes);
-      if (deleteRes !== null)
-        return res.status(200).json({ message: "deleted user" });
-      else throw new Error("delete response was null, unsuccessful delete");
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: error.message || error });
     }
   },
   updateUserById: async function (

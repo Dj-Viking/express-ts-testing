@@ -14,10 +14,5 @@ export async function isUserRole(
           "forbidden, please contact your administrator to set your role permissions properly",
       });
     return next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "oops! something went wrong, please try again later." });
-  }
+  } catch (error) {}
 }

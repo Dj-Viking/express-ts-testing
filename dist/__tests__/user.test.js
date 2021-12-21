@@ -189,6 +189,10 @@ describe("testing some crud stuff on users", () => {
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
     }));
+    test("POST /user/login test the login route without a password or email and get 422", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noLogin = yield (0, supertest_1.default)(app).post("/user/login");
+        expect(noLogin.statusCode).toBe(422);
+    }));
     test("POST /user/login test the login route and we also return a new token", () => __awaiter(void 0, void 0, void 0, function* () {
         const loginRes = yield (0, supertest_1.default)(app).post("/user/login").send({
             email: "updated email",

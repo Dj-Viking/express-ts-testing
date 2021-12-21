@@ -8,14 +8,8 @@ import {
   updateRoleOnlyAsAdmin,
 } from "../middleware";
 const router = Router();
-const {
-  createUser,
-  getAllUsers,
-  updateUserById,
-  getUserById,
-  deleteUserById,
-  login,
-} = UserController;
+const { createUser, getAllUsers, updateUserById, getUserById, login } =
+  UserController;
 
 // /user
 // TODO restrict get all users to admins only
@@ -33,8 +27,7 @@ router
     updateRoleOnlyAsAdmin,
     updateUserById
   )
-  .get(authMiddleware, isUserRole, getUserById)
-  .delete(authMiddleware, isAdminRole, deleteUserById);
+  .get(authMiddleware, isUserRole, getUserById);
 
 // /user/login
 router.route("/login").post(login);

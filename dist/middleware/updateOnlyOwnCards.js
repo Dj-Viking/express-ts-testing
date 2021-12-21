@@ -12,21 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateOnlyOwnCards = void 0;
 const models_1 = require("../models");
 function updateOnlyOwnCards(req, res, next) {
-    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { params } = req;
             const cardToUpdate = yield models_1.Card.findOne({ _id: params.id });
-            if (((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) !== (cardToUpdate === null || cardToUpdate === void 0 ? void 0 : cardToUpdate.creator))
+            if (req.user._id !== cardToUpdate.creator)
                 return res.status(403).json({ message: "forbidden" });
             return next();
         }
-        catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                message: "Oops sorry this request could not be processed, please try again later.",
-            });
-        }
+        catch (error) { }
     });
 }
 exports.updateOnlyOwnCards = updateOnlyOwnCards;

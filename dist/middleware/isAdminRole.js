@@ -19,12 +19,7 @@ function isAdminRole(req, res, next) {
                 return res.status(403).json({ message: "forbidden" });
             return next();
         }
-        catch (error) {
-            console.error(error);
-            res
-                .status(500)
-                .json({ message: "oops! something went wrong, please try again later." });
-        }
+        catch (error) { }
     });
 }
 exports.isAdminRole = isAdminRole;

@@ -248,6 +248,10 @@ describe("testing some crud stuff on users", () => {
     expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
   });
   // login test
+  test("POST /user/login test the login route without a password or email and get 422", async () => {
+    const noLogin = await request(app).post("/user/login");
+    expect(noLogin.statusCode).toBe(422);
+  });
   test("POST /user/login test the login route and we also return a new token", async () => {
     const loginRes = await request(app).post("/user/login").send({
       email: "updated email",
@@ -263,6 +267,7 @@ describe("testing some crud stuff on users", () => {
     const parsed = JSON.parse(loginRes.text);
     expect(typeof parsed.user.token).toBe("string");
   });
+  // TODO: test the user forgot and user change password functions
   // test("POST /user/forgot")
   // login test incorrect credentials error
   test("POST /user/login test with garbage email the login errors appear", async () => {

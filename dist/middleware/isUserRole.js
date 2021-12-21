@@ -19,12 +19,7 @@ function isUserRole(req, res, next) {
                 });
             return next();
         }
-        catch (error) {
-            console.error(error);
-            res
-                .status(500)
-                .json({ message: "oops! something went wrong, please try again later." });
-        }
+        catch (error) { }
     });
 }
 exports.isUserRole = isUserRole;

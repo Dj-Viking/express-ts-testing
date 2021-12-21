@@ -49,11 +49,10 @@ exports.UserController = {
         });
     },
     login: function (req, res) {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, password } = req.body;
-                if (!password)
+                if (!password || !email)
                     return res.status(422).json({ error: "unprocessable entity" });
                 const foundUser = yield models_1.User.findOne({ email });
                 if (foundUser === null)
@@ -62,14 +61,14 @@ exports.UserController = {
                 if (!validPass)
                     return res.status(400).json({ error: "incorrect credentials" });
                 const token = (0, signToken_1.signToken)({
-                    _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
+                    _id: foundUser._id,
                     role: foundUser.role,
-                    username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
-                    email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
+                    username: foundUser.username,
+                    email: foundUser.email,
                     uuid: uuid.v4(),
                 });
-                const ids = (_a = foundUser === null || foundUser === void 0 ? void 0 : foundUser.cards) === null || _a === void 0 ? void 0 : _a.map((card) => {
-                    return new mongoose_1.default.Types.ObjectId(card === null || card === void 0 ? void 0 : card._id);
+                const ids = foundUser.cards.map((card) => {
+                    return new mongoose_1.default.Types.ObjectId(card._id);
                 });
                 const userCards = yield models_1.Card.find({
                     _id: { $in: ids },
@@ -115,25 +114,6 @@ exports.UserController = {
             catch (error) {
                 console.error(error);
                 return res.status(500).json({ error: error.message });
-            }
-        });
-    },
-    deleteUserById: function (req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const foundUser = yield models_1.User.findOne({ _id: req.params.id }).select("-__v");
-                if (foundUser === null) {
-                    return res.status(404).json({ message: "user not found" });
-                }
-                const deleteRes = yield models_1.User.findOneAndDelete({ _id: req.params.id });
-                if (deleteRes !== null)
-                    return res.status(200).json({ message: "deleted user" });
-                else
-                    throw new Error("delete response was null, unsuccessful delete");
-            }
-            catch (error) {
-                console.error(error);
-                return res.status(500).json({ error: error.message || error });
             }
         });
     },
