@@ -13,8 +13,6 @@ exports.isAdminRole = void 0;
 function isAdminRole(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (!req.user)
-                return res.status(401).json({ message: "unauthorized" });
             if (req.user.role !== "admin")
                 return res.status(403).json({ message: "forbidden" });
             return next();
