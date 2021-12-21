@@ -184,7 +184,6 @@ describe("testing some crud stuff on users", () => {
         email: "test admin email",
       });
     const parsed = JSON.parse(adminUser.text).user as IUser;
-    console.log("parsed", parsed);
     expect(adminUser.statusCode).toBe(201);
     expect(typeof parsed._id).toBe("string");
     adminUserId = parsed._id;
@@ -193,13 +192,11 @@ describe("testing some crud stuff on users", () => {
   });
   // update user route test
   test("PUT /user/:id update a user as an admin", async () => {
-    console.log("admin token", adminToken);
     const update = await request(app)
       .put(`/user/${newUserId}`)
       .set({ authorization: `Bearer ${adminToken}` })
       .send({ username: "updated username", role: "superman" });
 
-    console.log("what is update", update.text);
     const parsed = JSON.parse(update.text).user as IUser;
     expect(update.statusCode).toBe(200);
     expect(parsed.role).toBe("superman");

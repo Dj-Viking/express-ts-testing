@@ -14,7 +14,6 @@ function updateOnlyAsSelfOrAdmin(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { params } = req;
-            console.log("req user", req.user);
             switch (true) {
                 case req.user.role === "admin" && params.id !== req.user._id:
                     return next();

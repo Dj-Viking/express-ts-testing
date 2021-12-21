@@ -157,7 +157,6 @@ describe("testing some crud stuff on users", () => {
             email: "test admin email",
         });
         const parsed = JSON.parse(adminUser.text).user;
-        console.log("parsed", parsed);
         expect(adminUser.statusCode).toBe(201);
         expect(typeof parsed._id).toBe("string");
         adminUserId = parsed._id;
@@ -165,12 +164,10 @@ describe("testing some crud stuff on users", () => {
         adminToken = parsed.token;
     }));
     test("PUT /user/:id update a user as an admin", () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log("admin token", adminToken);
         const update = yield (0, supertest_1.default)(app)
             .put(`/user/${newUserId}`)
             .set({ authorization: `Bearer ${adminToken}` })
             .send({ username: "updated username", role: "superman" });
-        console.log("what is update", update.text);
         const parsed = JSON.parse(update.text).user;
         expect(update.statusCode).toBe(200);
         expect(parsed.role).toBe("superman");
