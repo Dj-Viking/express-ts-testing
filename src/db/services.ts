@@ -51,10 +51,11 @@ export const UserService = {
   updateUserById: async function (
     args: IUpdateUser
   ): Promise<IUpdateUserResponse> {
-    const { _id, username, email } = args;
+    const { role, _id, username, email } = args;
     const updateObj = {
       username,
       email,
+      role,
     } as IUpdateUserObject;
 
     const updatedUser = await User.findByIdAndUpdate(_id, updateObj, {
@@ -72,6 +73,8 @@ export const UserService = {
       createdAt: updatedUser.createdAt,
       //@ts-expect-error should have a user since we will have necessary items to complete the query
       updatedAt: updatedUser.updatedAt,
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      role: updatedUser.role,
     } as IUpdateUserResponse;
   },
 };

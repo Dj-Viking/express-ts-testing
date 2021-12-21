@@ -9,6 +9,33 @@ import { signToken } from "../utils/signToken";
 const uuid = require("uuid");
 const { createUser, updateUserById } = UserService;
 export const UserController = {
+  testAdminUser: async function (
+    req: Express.MyRequest,
+    res: Response
+  ): Promise<Response> {
+    const { username, email, password } = req.body;
+    const user = await User.create({
+      username,
+      email,
+      password,
+      role: "admin",
+    });
+    const token = signToken({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: "admin",
+      uuid: uuid.v4(),
+    });
+    const returnUser = {
+      username: user.username,
+      email: user.email,
+      _id: user._id,
+      role: user.role,
+      token,
+    };
+    return res.status(201).json({ user: returnUser });
+  },
   testNoRoleUser: async function (
     req: Express.MyRequest,
     res: Response
@@ -130,6 +157,7 @@ export const UserController = {
       _id: req.params.id,
       username: req.body.username,
       email: req.body.email,
+      role: req.body.role,
     });
     return res.status(200).json({ user: updatedUser });
   },

@@ -19,8 +19,10 @@ const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
 const signToken_1 = require("../utils/signToken");
 const verifyTokenAsync_1 = require("../utils/verifyTokenAsync");
+const readEnv_1 = require("../utils/readEnv");
 const uuid = require("uuid");
-const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
+(0, readEnv_1.readEnv)();
+const { EXPIRED_TOKEN, INVALID_SIGNATURE, TEST_ADMIN_ENDPOINT } = process.env;
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -30,6 +32,8 @@ afterEach((done) => {
 const app = (0, app_1.default)();
 let newUserId = null;
 let newUserToken = null;
+let adminUserId = null;
+let adminToken = null;
 describe("testing some crud stuff on users", () => {
     test("POST /user request to create user without username", () => __awaiter(void 0, void 0, void 0, function* () {
         const noUsername = yield (0, supertest_1.default)(app).post("/user").send({
@@ -144,6 +148,33 @@ describe("testing some crud stuff on users", () => {
         expect(typeof parsed.user.role).toBe("string");
         newUserToken = parsed.user.token;
     }));
+    test("POST a test admin user using secret endpoint", () => __awaiter(void 0, void 0, void 0, function* () {
+        const adminUser = yield (0, supertest_1.default)(app)
+            .post(`/user/${TEST_ADMIN_ENDPOINT}`)
+            .send({
+            username: "test admin",
+            password: "test pass",
+            email: "test admin email",
+        });
+        const parsed = JSON.parse(adminUser.text).user;
+        console.log("parsed", parsed);
+        expect(adminUser.statusCode).toBe(201);
+        expect(typeof parsed._id).toBe("string");
+        adminUserId = parsed._id;
+        expect(parsed.role).toBe("admin");
+        adminToken = parsed.token;
+    }));
+    test("PUT /user/:id update a user as an admin", () => __awaiter(void 0, void 0, void 0, function* () {
+        console.log("admin token", adminToken);
+        const update = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ${adminToken}` })
+            .send({ username: "updated username", role: "superman" });
+        console.log("what is update", update.text);
+        const parsed = JSON.parse(update.text).user;
+        expect(update.statusCode).toBe(200);
+        expect(parsed.role).toBe("superman");
+    }));
     test("PUT /user/:id update the user with blank token get 401 status code", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
             .put(`/user/${newUserId}`)
@@ -246,6 +277,7 @@ describe("testing some crud stuff on users", () => {
     }));
     test("delete the user we just made with the mongoose client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_1.User.findOneAndDelete({ _id: newUserId });
+        yield models_1.User.findOneAndDelete({ _id: adminUserId });
     }));
 });
 //# sourceMappingURL=user.test.js.map

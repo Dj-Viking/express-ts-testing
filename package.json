@@ -13,7 +13,7 @@
     "tsc": "tsc",
     "start": "sh dev.sh",
     "db:sandbox": "SUPER_SECRET=$(cat supersecret.txt) node dist/db/utils/db-sandbox.js",
-    "concurrent": "SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
+    "concurrent": "ENV_TXT=$(cat env.txt) NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
   },
   "repository": {
     "type": "git",

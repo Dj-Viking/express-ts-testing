@@ -52,10 +52,11 @@ exports.UserService = {
     },
     updateUserById: function (args) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { _id, username, email } = args;
+            const { role, _id, username, email } = args;
             const updateObj = {
                 username,
                 email,
+                role,
             };
             const updatedUser = yield models_1.User.findByIdAndUpdate(_id, updateObj, {
                 new: true,
@@ -67,6 +68,7 @@ exports.UserService = {
                 email: updatedUser.email,
                 createdAt: updatedUser.createdAt,
                 updatedAt: updatedUser.updatedAt,
+                role: updatedUser.role,
             };
         });
     },

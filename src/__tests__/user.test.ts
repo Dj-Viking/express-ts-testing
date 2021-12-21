@@ -10,11 +10,12 @@ import {
 } from "../constants";
 import { signToken } from "../utils/signToken";
 import { verifyTokenAsync } from "../utils/verifyTokenAsync";
-import { IJwtData } from "types";
+import { IJwtData, IUser } from "../types";
+import { readEnv } from "../utils/readEnv";
 // eslint-disable-next-line
 const uuid = require("uuid");
-
-const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
+readEnv();
+const { EXPIRED_TOKEN, INVALID_SIGNATURE, TEST_ADMIN_ENDPOINT } = process.env;
 
 beforeEach((done) => {
   mongoose.connect(LOCAL_DB_URL, {}, () => done());
@@ -29,6 +30,8 @@ afterEach((done) => {
 const app = createServer();
 let newUserId: string | null = null;
 let newUserToken: string | null = null;
+let adminUserId: string | null = null;
+let adminToken: string | null = null;
 
 describe("testing some crud stuff on users", () => {
   //try to create user without username email or password
@@ -171,7 +174,36 @@ describe("testing some crud stuff on users", () => {
     expect(typeof parsed.user.role).toBe("string");
     newUserToken = parsed.user.token;
   });
+  //create temp admin user to test the update as admin middleware
+  test("POST a test admin user using secret endpoint", async () => {
+    const adminUser = await request(app)
+      .post(`/user/${TEST_ADMIN_ENDPOINT}` as string)
+      .send({
+        username: "test admin",
+        password: "test pass",
+        email: "test admin email",
+      });
+    const parsed = JSON.parse(adminUser.text).user as IUser;
+    console.log("parsed", parsed);
+    expect(adminUser.statusCode).toBe(201);
+    expect(typeof parsed._id).toBe("string");
+    adminUserId = parsed._id;
+    expect(parsed.role).toBe("admin");
+    adminToken = parsed.token;
+  });
   // update user route test
+  test("PUT /user/:id update a user as an admin", async () => {
+    console.log("admin token", adminToken);
+    const update = await request(app)
+      .put(`/user/${newUserId}`)
+      .set({ authorization: `Bearer ${adminToken}` })
+      .send({ username: "updated username", role: "superman" });
+
+    console.log("what is update", update.text);
+    const parsed = JSON.parse(update.text).user as IUser;
+    expect(update.statusCode).toBe(200);
+    expect(parsed.role).toBe("superman");
+  });
   test("PUT /user/:id update the user with blank token get 401 status code", async () => {
     const updateRes = await request(app)
       .put(`/user/${newUserId}`)
@@ -316,5 +348,6 @@ describe("testing some crud stuff on users", () => {
   });
   test("delete the user we just made with the mongoose client", async () => {
     await User.findOneAndDelete({ _id: newUserId });
+    await User.findOneAndDelete({ _id: adminUserId });
   });
 });

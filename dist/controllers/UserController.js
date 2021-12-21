@@ -21,6 +21,32 @@ const signToken_1 = require("../utils/signToken");
 const uuid = require("uuid");
 const { createUser, updateUserById } = services_1.UserService;
 exports.UserController = {
+    testAdminUser: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { username, email, password } = req.body;
+            const user = yield models_1.User.create({
+                username,
+                email,
+                password,
+                role: "admin",
+            });
+            const token = (0, signToken_1.signToken)({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: "admin",
+                uuid: uuid.v4(),
+            });
+            const returnUser = {
+                username: user.username,
+                email: user.email,
+                _id: user._id,
+                role: user.role,
+                token,
+            };
+            return res.status(201).json({ user: returnUser });
+        });
+    },
     testNoRoleUser: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { username, email, password } = req.body;
@@ -126,6 +152,7 @@ exports.UserController = {
                 _id: req.params.id,
                 username: req.body.username,
                 email: req.body.email,
+                role: req.body.role,
             });
             return res.status(200).json({ user: updatedUser });
         });

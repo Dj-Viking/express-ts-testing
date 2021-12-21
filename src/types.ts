@@ -13,6 +13,7 @@ declare global {
       EXPIRATION?: string;
       SUPER_SECRET?: string;
       ENV_TXT?: string;
+      TEST_ADMIN_ENDPOINT?: string;
     }
   }
 }
@@ -120,10 +121,12 @@ export interface IUpdateUser {
   username?: string;
   email?: string;
   _id: string;
+  role?: string;
 }
 export interface IUpdateUserObject {
   username?: string;
   email?: string;
+  role?: string;
 }
 export interface IUpdateUserResponse {
   username: string;

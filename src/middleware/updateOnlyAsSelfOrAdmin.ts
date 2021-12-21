@@ -8,9 +8,10 @@ export async function updateOnlyAsSelfOrAdmin(
 ): Promise<Response | void> {
   try {
     const { params } = req;
+    console.log("req user", req.user);
     switch (true) {
       // @ts-expect-error verified in previous middleware
-      case req.user.role === "admin":
+      case req.user.role === "admin" && params.id !== req.user._id:
         return next();
       // @ts-expect-error verified in previous middleware
       case params.id !== req.user._id && req.user.role === "user": {
