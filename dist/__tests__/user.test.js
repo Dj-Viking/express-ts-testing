@@ -17,6 +17,9 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
+const signToken_1 = require("../utils/signToken");
+const verifyTokenAsync_1 = require("../utils/verifyTokenAsync");
+const uuid = require("uuid");
 const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
@@ -93,6 +96,28 @@ describe("testing some crud stuff on users", () => {
             .get(`/user/${newUserId}`)
             .set({ authorization: `Bearer kdfkdjf` });
         expect(getUser.statusCode).toBe(403);
+    }));
+    test("GET /user test get all users as non admin should get 403", () => __awaiter(void 0, void 0, void 0, function* () {
+        const forbidden = yield (0, supertest_1.default)(app)
+            .get("/user")
+            .set({ authorization: `Bearer ${newUserToken}` });
+        expect(forbidden.statusCode).toBe(403);
+        expect(JSON.parse(forbidden.text).message).toBe("forbidden");
+    }));
+    test("GET /user test get all users route only with an admin role", () => __awaiter(void 0, void 0, void 0, function* () {
+        const adminUuid = uuid.v4();
+        const adminToken = (0, signToken_1.signToken)({
+            adminUuid,
+        });
+        expect(typeof adminToken).toBe("string");
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(adminToken));
+        expect(verified instanceof Error).toBe(false);
+        expect(verified.role).toBe("admin");
+        const getAllUsers = yield (0, supertest_1.default)(app)
+            .get("/user")
+            .set({ authorization: `Bearer ${adminToken}` });
+        expect(getAllUsers.statusCode).toBe(200);
+        expect(JSON.parse(getAllUsers.text).users).toHaveLength(1);
     }));
     test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
         const getUserRes = yield (0, supertest_1.default)(app)
@@ -192,6 +217,7 @@ describe("testing some crud stuff on users", () => {
     test("POST /user/login test the login route without a password or email and get 422", () => __awaiter(void 0, void 0, void 0, function* () {
         const noLogin = yield (0, supertest_1.default)(app).post("/user/login");
         expect(noLogin.statusCode).toBe(422);
+        expect(JSON.parse(noLogin.text).error).toBe("unprocessable entity");
     }));
     test("POST /user/login test the login route and we also return a new token", () => __awaiter(void 0, void 0, void 0, function* () {
         const loginRes = yield (0, supertest_1.default)(app).post("/user/login").send({

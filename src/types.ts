@@ -29,6 +29,7 @@ export interface IJwtData extends jwt.JwtPayload {
   username: string;
   email: string;
   uuid?: string;
+  adminUuid: string;
   role: "user" | "admin";
   resetEmail?: string;
   iat?: number;
@@ -45,13 +46,16 @@ export interface SignLoginRegisterMeTokenArgs {
   _id?: string;
   username: string;
   email: string;
-  role: string;
+  role?: string;
   uuid?: string;
 }
 export interface SignResetPasswordTokenArgs {
   resetEmail: string;
   uuid: string;
   exp: string;
+}
+export interface AdminTokenArgs {
+  adminUuid: string;
 }
 
 export interface ICreateCardPayload extends Object {
@@ -99,6 +103,17 @@ export interface ICard {
   creator?: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface IUser {
+  _id: string;
+  cards: Array<ICard>;
+  email: string;
+  role?: string;
+  updatedAt: Date;
+  createdAt: Date;
+  token: string;
+  username: string;
 }
 
 export interface IUpdateUser {

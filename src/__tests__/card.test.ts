@@ -1,10 +1,11 @@
 import request from "supertest";
 import mongoose from "mongoose";
-import { Card } from "../models";
+import { Card, User } from "../models";
 import {
   ICreateCardPayload,
   ICreateUserResponse,
   ILoginResponse,
+  IUser,
 } from "../types";
 import createServer from "../app";
 import {
@@ -13,7 +14,6 @@ import {
   TEST_PASSWORD,
   TEST_USERNAME,
 } from "../constants";
-import { User } from "../models";
 
 beforeEach((done) => {
   mongoose.connect(LOCAL_DB_URL, {}, () => done());
@@ -31,6 +31,8 @@ let newUserId: string | null = null;
 let newUserToken: string | null = null;
 let secondUserId: string | null = null;
 let secondUserToken: string | null = null;
+let noRoleUserId: string | null = null;
+let noRoleUserToken: string | null = null;
 
 describe("card CRUD stuff", () => {
   //create a user that will add cards to their library
@@ -51,6 +53,33 @@ describe("card CRUD stuff", () => {
     newUserId = JSON.parse(createRes.text).user._id;
     expect(typeof JSON.parse(createRes.text).user.token).toBe("string");
     newUserToken = JSON.parse(createRes.text).user.token;
+  });
+  test("POST /user/test create a user without a role to try and create a card without the user role", async () => {
+    const user = await request(app).post("/user/test").send({
+      username: "no role here",
+      email: "no role here",
+      password: "no role here",
+    });
+    const parsed = JSON.parse(user.text).user as IUser;
+    expect(user.statusCode).toBe(201);
+    expect(typeof parsed.token).toBe("string");
+    noRoleUserToken = parsed.token;
+    expect(typeof parsed._id).toBe("string");
+    noRoleUserId = parsed._id;
+  });
+  test("POST /card try to create a card as a user without a user role", async () => {
+    const noRole = await request(app)
+      .post("/card")
+      .set({ authorization: `Bearer ${noRoleUserToken}` })
+      .send({
+        frontsideText: "привет",
+        frontsideLanguage: "Русский",
+        frontsidePicture: "front side picture text",
+        backsideText: "hello",
+        backsideLanguage: "English",
+        backsidePicture: "ksdjfdkj",
+      } as ICreateCardPayload);
+    expect(noRole.statusCode).toBe(403);
   });
   //create card
   // TODO add the user ID to the card mongoose (set just as a string)
@@ -94,9 +123,6 @@ describe("card CRUD stuff", () => {
     expect(notFound.statusCode).toBe(404);
     expect(JSON.parse(notFound.text).message).toBe("card not found");
   });
-  // test("PUT /card/:id update card to try and make the server return 500 error", async () => {
-  //   const update = await request(app).put(`/card/${newCardId}`)
-  // });
   //edit card
   test("PUT /card/:id update a card by it's id", async () => {
     const updateCardRes = await request(app)
@@ -150,5 +176,6 @@ describe("card CRUD stuff", () => {
   test("delete the users we just made", async () => {
     await User.findOneAndDelete({ _id: newUserId });
     await User.findOneAndDelete({ _id: secondUserId });
+    await User.findOneAndDelete({ _id: noRoleUserId });
   });
 });

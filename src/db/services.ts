@@ -11,7 +11,9 @@ import {
 const uuid = require("uuid");
 
 export const UserService = {
-  createUser: async function (args: ICreateUser): Promise<ICreateUserResponse> {
+  createUser: async function (
+    args: ICreateUser
+  ): Promise<ICreateUserResponse | void> {
     try {
       const { username, email, password } = args;
       const createdUser = await User.create({
@@ -42,71 +44,34 @@ export const UserService = {
       };
     } catch (error) {
       if (error.errors) {
-        switch (true) {
-          case error.errors.email: {
-            throw {
-              email: error.errors,
-            };
-          }
-          case error.errors.username: {
-            throw {
-              username: error.errors,
-            };
-          }
-          case error.errors.password: {
-            throw {
-              password: error.errors,
-            };
-          }
-          default:
-            throw error;
-        }
+        throw error;
       }
-      throw error;
     }
   },
   updateUserById: async function (
     args: IUpdateUser
-  ): Promise<IUpdateUserResponse | unknown> {
+  ): Promise<IUpdateUserResponse> {
     const { _id, username, email } = args;
-    try {
-      const updateObj = {
-        username,
-        email,
-      } as IUpdateUserObject;
-      // console.log("update obj created", updateObj);
-      //delete the properties that are undefined from the object sent
-      // by the request body
-      switch (true) {
-        case !_id:
-          throw { id: `must provide an id to update a user` };
-        case !username:
-          delete updateObj.username;
-          break;
-        case !email:
-          delete updateObj.email;
-          break;
-        default:
-          break;
-      }
+    const updateObj = {
+      username,
+      email,
+    } as IUpdateUserObject;
 
-      // console.log("trimmed update object", updateObj);
-
-      const updatedUser = await User.findByIdAndUpdate(_id, updateObj, {
-        new: true,
-        runValidators: true,
-      });
-      // console.log("updated user db response", updatedUser);
-      return {
-        _id: updatedUser?._id,
-        username: updatedUser?.username,
-        email: updatedUser?.email,
-        createdAt: updatedUser?.createdAt,
-        updatedAt: updatedUser?.updatedAt,
-      } as IUpdateUserResponse;
-    } catch (error) {
-      // console.log("error when updating user: ", error, error.id);
-      throw error.id || error;
-    }
+    const updatedUser = await User.findByIdAndUpdate(_id, updateObj, {
+      new: true,
+      runValidators: true,
+    });
+    return {
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      _id: updatedUser._id,
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      username: updatedUser.username,
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      email: updatedUser.email,
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      createdAt: updatedUser.createdAt,
+      //@ts-expect-error should have a user since we will have necessary items to complete the query
+      updatedAt: updatedUser.updatedAt,
+    } as IUpdateUserResponse;
   },
 };

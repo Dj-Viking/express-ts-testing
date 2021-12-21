@@ -8,6 +8,11 @@ import {
   TEST_PASSWORD,
   TEST_USERNAME,
 } from "../constants";
+import { signToken } from "../utils/signToken";
+import { verifyTokenAsync } from "../utils/verifyTokenAsync";
+import { IJwtData } from "types";
+// eslint-disable-next-line
+const uuid = require("uuid");
 
 const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
 
@@ -103,6 +108,28 @@ describe("testing some crud stuff on users", () => {
       .set({ authorization: `Bearer kdfkdjf` });
 
     expect(getUser.statusCode).toBe(403);
+  });
+  test("GET /user test get all users as non admin should get 403", async () => {
+    const forbidden = await request(app)
+      .get("/user")
+      .set({ authorization: `Bearer ${newUserToken}` });
+    expect(forbidden.statusCode).toBe(403);
+    expect(JSON.parse(forbidden.text).message).toBe("forbidden");
+  });
+  test("GET /user test get all users route only with an admin role", async () => {
+    const adminUuid = uuid.v4();
+    const adminToken = signToken({
+      adminUuid,
+    });
+    expect(typeof adminToken).toBe("string");
+    const verified = (await verifyTokenAsync(adminToken)) as IJwtData;
+    expect(verified instanceof Error).toBe(false);
+    expect(verified.role).toBe("admin");
+    const getAllUsers = await request(app)
+      .get("/user")
+      .set({ authorization: `Bearer ${adminToken}` });
+    expect(getAllUsers.statusCode).toBe(200);
+    expect(JSON.parse(getAllUsers.text).users).toHaveLength(1);
   });
   // get that user we just made make sure they were made and the get user route works
   test("GET /user/:id the user we just created in the previous test", async () => {
@@ -251,6 +278,7 @@ describe("testing some crud stuff on users", () => {
   test("POST /user/login test the login route without a password or email and get 422", async () => {
     const noLogin = await request(app).post("/user/login");
     expect(noLogin.statusCode).toBe(422);
+    expect(JSON.parse(noLogin.text).error).toBe("unprocessable entity");
   });
   test("POST /user/login test the login route and we also return a new token", async () => {
     const loginRes = await request(app).post("/user/login").send({

@@ -17,39 +17,21 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 exports.CardController = {
     createCard: function (req, res) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const createdCard = yield models_1.Card.create(Object.assign({ _id: new mongoose_1.default.Types.ObjectId() }, req.body));
-                const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
-                    creator: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
-                }, { new: true }).select("-__v");
-                const foundUser = yield models_1.User.findOneAndUpdate({ _id: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id }, { $push: { cards: updatedCardWithCreatorId } }, { new: true });
-                if (foundUser === null)
-                    return res.status(401).json({
-                        error: "not authenticated can't add a card to a non user's collection",
-                    });
-                return res.status(201).json({ cards: foundUser.cards });
-            }
-            catch (error) {
-                console.error(error);
-                return res.status(500).json({ error: error.message || error });
-            }
+            const createdCard = yield models_1.Card.create(Object.assign({ _id: new mongoose_1.default.Types.ObjectId() }, req.body));
+            const updatedCardWithCreatorId = yield models_1.Card.findOneAndUpdate({ _id: createdCard._id }, {
+                creator: req.user._id,
+            }, { new: true }).select("-__v");
+            const foundUser = yield models_1.User.findOneAndUpdate({ _id: req.user._id }, { $push: { cards: updatedCardWithCreatorId } }, { new: true });
+            return res.status(201).json({ cards: foundUser.cards });
         });
     },
     updateCardById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const updatedCard = yield models_1.Card.findOneAndUpdate({
-                    _id: req.params.id,
-                }, Object.assign({}, req.body), { new: true });
-                return res.status(200).json({ card: updatedCard });
-            }
-            catch (error) {
-                return res.status(500).json({
-                    error: `error when updating a card by id ${error}`,
-                });
-            }
+            const updatedCard = yield models_1.Card.findOneAndUpdate({
+                _id: req.params.id,
+            }, Object.assign({}, req.body), { new: true });
+            return res.status(200).json({ card: updatedCard });
         });
     },
 };

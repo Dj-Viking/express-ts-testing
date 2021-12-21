@@ -23,7 +23,7 @@ describe("test the sign token branches", () => {
             role: "user",
         });
         expect(typeof token).toBe("string");
-        let verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
         expect(verified instanceof Error).toBe(false);
         expect(verified.email).toBe("email");
         expect(verified.username).toBe("username");
@@ -39,15 +39,26 @@ describe("test the sign token branches", () => {
             exp: "5m",
         });
         expect(typeof token).toBe("string");
-        let verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
         expect(verified.resetEmail).toBe("reset email");
         expect(verified.uuid).toBe(theUuid);
     }));
     test("the token signing returns an error string as the token", () => __awaiter(void 0, void 0, void 0, function* () {
         const token = (0, signToken_1.signToken)({});
         expect(typeof token).toBe("string");
-        let verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
         expect(verified instanceof Error).toBe(true);
+    }));
+    test("the token returned has the admin role", () => __awaiter(void 0, void 0, void 0, function* () {
+        const adminUuid = uuid.v4();
+        const token = (0, signToken_1.signToken)({
+            adminUuid,
+        });
+        expect(typeof token).toBe("string");
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(token));
+        expect(verified instanceof Error).toBe(false);
+        expect(verified.adminUuid).toBe(adminUuid);
+        expect(verified.role).toBe("admin");
     }));
 });
 //# sourceMappingURL=signToken.test.js.map

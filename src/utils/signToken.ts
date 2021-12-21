@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import {
   SignLoginRegisterMeTokenArgs,
   SignResetPasswordTokenArgs,
+  AdminTokenArgs,
 } from "../types";
 import { readEnv } from "../utils/readEnv";
 readEnv();
@@ -9,7 +10,10 @@ readEnv();
 const { SECRET, EXPIRATION } = process.env;
 
 export function signToken(
-  args: SignLoginRegisterMeTokenArgs | SignResetPasswordTokenArgs
+  args:
+    | SignLoginRegisterMeTokenArgs
+    | SignResetPasswordTokenArgs
+    | AdminTokenArgs
 ): string {
   const {
     username,
@@ -20,6 +24,8 @@ export function signToken(
   } = args as SignLoginRegisterMeTokenArgs;
 
   const { resetEmail, uuid, exp } = args as SignResetPasswordTokenArgs;
+
+  const { adminUuid } = args as AdminTokenArgs;
 
   switch (true) {
     case Boolean(username && someUuid && email && _id && role): {
@@ -43,6 +49,31 @@ export function signToken(
         },
         SECRET as string,
         { expiresIn: exp }
+      );
+    }
+    case Boolean(adminUuid): {
+      return jwt.sign(
+        {
+          adminUuid,
+          role: "admin",
+        },
+        SECRET as string,
+        { expiresIn: "240000h" }
+      );
+    }
+    case Boolean(
+      username && email && _id && someUuid && typeof role === "undefined"
+    ): {
+      return jwt.sign(
+        {
+          someUuid,
+          username,
+          email,
+          _id,
+          role: void 0,
+        },
+        SECRET as string,
+        { expiresIn: EXPIRATION }
       );
     }
     default:

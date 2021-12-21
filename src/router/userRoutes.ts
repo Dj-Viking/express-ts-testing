@@ -8,11 +8,19 @@ import {
   updateRoleOnlyAsAdmin,
 } from "../middleware";
 const router = Router();
-const { createUser, getAllUsers, updateUserById, getUserById, login } =
-  UserController;
+const {
+  createUser,
+  getAllUsers,
+  updateUserById,
+  getUserById,
+  login,
+  testNoRoleUser,
+} = UserController;
+
+// /user/test
+router.route("/test").post(testNoRoleUser);
 
 // /user
-// TODO restrict get all users to admins only
 router
   .route("/")
   .post(createUser)

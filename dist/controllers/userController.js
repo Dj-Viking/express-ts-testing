@@ -21,6 +21,31 @@ const signToken_1 = require("../utils/signToken");
 const uuid = require("uuid");
 const { createUser, updateUserById } = services_1.UserService;
 exports.UserController = {
+    testNoRoleUser: function (req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { username, email, password } = req.body;
+            const user = yield models_1.User.create({
+                username,
+                email,
+                password,
+            });
+            const token = (0, signToken_1.signToken)({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: void 0,
+                uuid: uuid.v4(),
+            });
+            const returnUser = {
+                username: user.username,
+                email: user.email,
+                _id: user._id,
+                role: user.role,
+                token,
+            };
+            return res.status(201).json({ user: returnUser });
+        });
+    },
     createUser: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { username, email, password } = req.body;
@@ -30,112 +55,79 @@ exports.UserController = {
                     email,
                     password,
                 });
-                return res.status(201).json({ user: user.user });
+                return (res
+                    .status(201)
+                    .json({ user: user.user }));
             }
             catch (error) {
                 let errorsObj = {};
                 if (error.errors) {
                     errorsObj = Object.assign({}, error.errors);
                 }
-                if (Boolean(errorsObj.username || errorsObj.email || errorsObj.password)) {
-                    return res
-                        .status(400)
-                        .json({ error: `${(0, formatError_1.formatCreateUserError)(errorsObj)}` });
-                }
-                return res.status(500).json({
-                    error: `error when creating a user: ${error}, ${error.stack}`,
-                });
+                return res
+                    .status(400)
+                    .json({ error: `${(0, formatError_1.formatCreateUserError)(errorsObj)}` });
             }
         });
     },
     login: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { email, password } = req.body;
-                if (!password || !email)
-                    return res.status(422).json({ error: "unprocessable entity" });
-                const foundUser = yield models_1.User.findOne({ email });
-                if (foundUser === null)
-                    return res.status(400).json({ error: "incorrect credentials" });
-                const validPass = yield foundUser.isCorrectPassword(password);
-                if (!validPass)
-                    return res.status(400).json({ error: "incorrect credentials" });
-                const token = (0, signToken_1.signToken)({
-                    _id: foundUser._id,
-                    role: foundUser.role,
-                    username: foundUser.username,
-                    email: foundUser.email,
-                    uuid: uuid.v4(),
-                });
-                const ids = foundUser.cards.map((card) => {
-                    return new mongoose_1.default.Types.ObjectId(card._id);
-                });
-                const userCards = yield models_1.Card.find({
-                    _id: { $in: ids },
-                }).select("-__v");
-                const returnUser = {
-                    token,
-                    username: foundUser === null || foundUser === void 0 ? void 0 : foundUser.username,
-                    role: (foundUser === null || foundUser === void 0 ? void 0 : foundUser.role) || "user",
-                    email: foundUser === null || foundUser === void 0 ? void 0 : foundUser.email,
-                    _id: foundUser === null || foundUser === void 0 ? void 0 : foundUser._id,
-                    cards: userCards,
-                };
-                return res.status(200).json({ user: returnUser });
-            }
-            catch (error) {
-                console.error(error);
-                return res.status(500).json({ error: error.message || error });
-            }
+            const { email, password } = req.body;
+            if (!password || !email)
+                return res.status(422).json({ error: "unprocessable entity" });
+            const foundUser = yield models_1.User.findOne({ email });
+            if (foundUser === null)
+                return res.status(400).json({ error: "incorrect credentials" });
+            const validPass = yield foundUser.isCorrectPassword(password);
+            if (!validPass)
+                return res.status(400).json({ error: "incorrect credentials" });
+            const token = (0, signToken_1.signToken)({
+                _id: foundUser._id,
+                role: foundUser.role,
+                username: foundUser.username,
+                email: foundUser.email,
+                uuid: uuid.v4(),
+            });
+            const ids = foundUser.cards.map((card) => {
+                return new mongoose_1.default.Types.ObjectId(card._id);
+            });
+            const userCards = yield models_1.Card.find({
+                _id: { $in: ids },
+            }).select("-__v");
+            const returnUser = {
+                token,
+                username: foundUser.username,
+                role: foundUser.role,
+                email: foundUser.email,
+                _id: foundUser._id,
+                cards: userCards,
+            };
+            return res.status(200).json({ user: returnUser });
         });
     },
     getAllUsers: function (_, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const allUsers = yield models_1.User.find({}).select("-__v").select("-password");
-                return res.status(200).json({ users: allUsers });
-            }
-            catch (error) {
-                return res.status(500).json({
-                    error: `error when getting all users ${error}`,
-                });
-            }
+            const allUsers = yield models_1.User.find({}).select("-__v").select("-password");
+            return res.status(200).json({ users: allUsers });
         });
     },
     getUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const foundUser = yield models_1.User.findOne({ _id: req.params.id }).select("-__v");
-                if (foundUser === null) {
-                    return res.status(404).json({ message: "user not found" });
-                }
-                return res.status(200).json({ user: foundUser });
+            const foundUser = yield models_1.User.findOne({ _id: req.params.id }).select("-__v");
+            if (foundUser === null) {
+                return res.status(404).json({ message: "user not found" });
             }
-            catch (error) {
-                console.error(error);
-                return res.status(500).json({ error: error.message });
-            }
+            return res.status(200).json({ user: foundUser });
         });
     },
     updateUserById: function (req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const foundUser = yield models_1.User.findOne({ _id: req.params.id });
-            if (foundUser === null) {
-                return res.status(404).json({ message: "user not found" });
-            }
-            try {
-                const updatedUser = yield updateUserById({
-                    _id: req.params.id,
-                    username: req.body.username,
-                    email: req.body.email,
-                });
-                return res.status(200).json({ user: updatedUser });
-            }
-            catch (error) {
-                return res.status(500).json({
-                    error: `error when updating a user by id ${error}`,
-                });
-            }
+            const updatedUser = yield updateUserById({
+                _id: req.params.id,
+                username: req.body.username,
+                email: req.body.email,
+            });
+            return res.status(200).json({ user: updatedUser });
         });
     },
 };

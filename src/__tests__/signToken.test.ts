@@ -1,6 +1,11 @@
-import { IJwtData } from "types";
 import { signToken } from "../utils/signToken";
 import { verifyTokenAsync } from "../utils/verifyTokenAsync";
+import {
+  SignLoginRegisterMeTokenArgs,
+  SignResetPasswordTokenArgs,
+  IJwtData,
+  AdminTokenArgs,
+} from "../types";
 // eslint-disable-next-line
 const uuid = require("uuid");
 
@@ -13,9 +18,9 @@ describe("test the sign token branches", () => {
       uuid: theUuid,
       _id: "someid",
       role: "user",
-    });
+    } as SignLoginRegisterMeTokenArgs);
     expect(typeof token).toBe("string");
-    let verified: IJwtData | Error | null = (await verifyTokenAsync(
+    const verified: IJwtData | Error | null = (await verifyTokenAsync(
       token
     )) as IJwtData;
     expect(verified instanceof Error).toBe(false);
@@ -31,9 +36,9 @@ describe("test the sign token branches", () => {
       resetEmail: "reset email",
       uuid: theUuid,
       exp: "5m",
-    });
+    } as SignResetPasswordTokenArgs);
     expect(typeof token).toBe("string");
-    let verified: IJwtData | Error | null = (await verifyTokenAsync(
+    const verified: IJwtData | Error | null = (await verifyTokenAsync(
       token
     )) as IJwtData;
     expect(verified.resetEmail).toBe("reset email");
@@ -43,9 +48,22 @@ describe("test the sign token branches", () => {
     //@ts-expect-error just for testing that the token could not be signed without an arguments
     const token = signToken({});
     expect(typeof token).toBe("string");
-    let verified: IJwtData | Error | null = (await verifyTokenAsync(
+    const verified: IJwtData | Error | null = (await verifyTokenAsync(
+      token
+    )) as Error;
+    expect(verified instanceof Error).toBe(true);
+  });
+  test("the token returned has the admin role", async () => {
+    const adminUuid = uuid.v4();
+    const token = signToken({
+      adminUuid,
+    } as AdminTokenArgs);
+    expect(typeof token).toBe("string");
+    const verified: IJwtData | Error | null = (await verifyTokenAsync(
       token
     )) as IJwtData;
-    expect(verified instanceof Error).toBe(true);
+    expect(verified instanceof Error).toBe(false);
+    expect(verified.adminUuid).toBe(adminUuid);
+    expect(verified.role).toBe("admin");
   });
 });

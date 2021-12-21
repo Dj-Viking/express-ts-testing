@@ -4,7 +4,8 @@ const express_1 = require("express");
 const UserController_1 = require("../controllers/UserController");
 const middleware_1 = require("../middleware");
 const router = (0, express_1.Router)();
-const { createUser, getAllUsers, updateUserById, getUserById, login } = UserController_1.UserController;
+const { createUser, getAllUsers, updateUserById, getUserById, login, testNoRoleUser, } = UserController_1.UserController;
+router.route("/test").post(testNoRoleUser);
 router
     .route("/")
     .post(createUser)
