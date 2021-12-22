@@ -31,10 +31,6 @@ jobs:
         uses: supercharge/mongodb-github-action@1.7.0
         with:
           mongodb-version: 4.4.3
-      - name: look at directory
-        run: ls -a
-      - name: look at src directory
-        run: cd src; ls -a
       - name: install all packages with version from project's own package-lock.json
         run: 
           npm ci
@@ -43,3 +39,8 @@ jobs:
         run: echo Running automated tests; npm run clear:jest; npm run test:ci;
         env: 
           ENV_TXT: ${{ secrets.ENV_TXT }}
+      # Upload code coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+            token: ${{ secrets.CODECOV_TOKEN}}
