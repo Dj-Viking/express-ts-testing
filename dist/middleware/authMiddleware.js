@@ -12,9 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
 const verifyTokenAsync_1 = require("../utils/verifyTokenAsync");
 function authMiddleware(req, res, next) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        const token = ((_b = (_a = req === null || req === void 0 ? void 0 : req.headers) === null || _a === void 0 ? void 0 : _a.authorization) === null || _b === void 0 ? void 0 : _b.split(" ")[1]) || null;
+        const token = req.headers.authorization.split(" ")[1] || null;
         if (!token)
             return res.status(401).json({ error: "not authenticated" });
         (0, verifyTokenAsync_1.verifyTokenAsync)(token)
@@ -26,10 +25,7 @@ function authMiddleware(req, res, next) {
                 return next();
             }
         })
-            .catch((error) => {
-            console.error("error when verifying token in middleware", error);
-            return res.status(500).json({ error: error.message || error });
-        });
+            .catch();
     });
 }
 exports.authMiddleware = authMiddleware;

@@ -7,18 +7,29 @@ import {
   updateOnlyAsSelfOrAdmin,
   updateRoleOnlyAsAdmin,
 } from "../middleware";
+import { readEnv } from "../utils/readEnv";
 const router = Router();
 const {
   createUser,
   getAllUsers,
   updateUserById,
   getUserById,
-  deleteUserById,
   login,
+  testNoRoleUser,
+  testAdminUser,
 } = UserController;
 
+readEnv();
+const { TEST_ADMIN_ENDPOINT } = process.env;
+// /user/TEST_ADMIN_ENDPOINT
+router.route(TEST_ADMIN_ENDPOINT as string).post(testAdminUser);
+
+// /user/test
+router.route("/test").post(testNoRoleUser);
+
+// test admin user endpoint
+
 // /user
-// TODO restrict get all users to admins only
 router
   .route("/")
   .post(createUser)
@@ -28,13 +39,11 @@ router
   .route("/:id")
   .put(
     authMiddleware,
-    isUserRole,
     updateOnlyAsSelfOrAdmin,
     updateRoleOnlyAsAdmin,
     updateUserById
   )
-  .get(authMiddleware, isUserRole, getUserById)
-  .delete(authMiddleware, isAdminRole, deleteUserById);
+  .get(authMiddleware, isUserRole, getUserById);
 
 // /user/login
 router.route("/login").post(login);

@@ -9,19 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cardNotFound = void 0;
-const models_1 = require("../models");
-function cardNotFound(req, res, next) {
+exports.updateOnlyAsSelfOrAdmin = void 0;
+function updateOnlyAsSelfOrAdmin(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { params } = req;
-            const cardToUpdate = yield models_1.Card.findOne({ _id: params.id });
-            if (cardToUpdate === null)
-                return res.status(404).json({ message: "card not found" });
+            switch (true) {
+                case req.user.role === "admin" && params.id !== req.user._id:
+                    return next();
+                case params.id !== req.user._id && req.user.role === "user": {
+                    return res.status(403).json({ message: "forbidden" });
+                }
+            }
             return next();
         }
         catch (error) { }
     });
 }
-exports.cardNotFound = cardNotFound;
-//# sourceMappingURL=cardNotFound.js.map
+exports.updateOnlyAsSelfOrAdmin = updateOnlyAsSelfOrAdmin;
+//# sourceMappingURL=updateOnlyAsSelfOrAdmin.js.map

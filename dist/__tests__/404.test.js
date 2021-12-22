@@ -8,20 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cardNotFound = void 0;
-const models_1 = require("../models");
-function cardNotFound(req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const { params } = req;
-            const cardToUpdate = yield models_1.Card.findOne({ _id: params.id });
-            if (cardToUpdate === null)
-                return res.status(404).json({ message: "card not found" });
-            return next();
-        }
-        catch (error) { }
-    });
-}
-exports.cardNotFound = cardNotFound;
-//# sourceMappingURL=cardNotFound.js.map
+const supertest_1 = __importDefault(require("supertest"));
+const app_1 = __importDefault(require("../app"));
+const app = (0, app_1.default)();
+describe("test the 404 route when fetching a route that doesn't exist", () => {
+    test("/GET /randomroute to test the 404 route", () => __awaiter(void 0, void 0, void 0, function* () {
+        const notFound = yield (0, supertest_1.default)(app).get("/randomroute");
+        expect(notFound.statusCode).toBe(404);
+        expect(notFound.text).toBe("<h1>Page not found</h1>");
+    }));
+});
+//# sourceMappingURL=404.test.js.map

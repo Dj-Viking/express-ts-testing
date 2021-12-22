@@ -8,8 +8,14 @@ import {
   TEST_PASSWORD,
   TEST_USERNAME,
 } from "../constants";
-
-const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
+import { signToken } from "../utils/signToken";
+import { verifyTokenAsync } from "../utils/verifyTokenAsync";
+import { IJwtData, IUser } from "../types";
+import { readEnv } from "../utils/readEnv";
+// eslint-disable-next-line
+const uuid = require("uuid");
+readEnv();
+const { EXPIRED_TOKEN, INVALID_SIGNATURE, TEST_ADMIN_ENDPOINT } = process.env;
 
 beforeEach((done) => {
   mongoose.connect(LOCAL_DB_URL, {}, () => done());
@@ -24,6 +30,8 @@ afterEach((done) => {
 const app = createServer();
 let newUserId: string | null = null;
 let newUserToken: string | null = null;
+let adminUserId: string | null = null;
+let adminToken: string | null = null;
 
 describe("testing some crud stuff on users", () => {
   //try to create user without username email or password
@@ -104,6 +112,28 @@ describe("testing some crud stuff on users", () => {
 
     expect(getUser.statusCode).toBe(403);
   });
+  test("GET /user test get all users as non admin should get 403", async () => {
+    const forbidden = await request(app)
+      .get("/user")
+      .set({ authorization: `Bearer ${newUserToken}` });
+    expect(forbidden.statusCode).toBe(403);
+    expect(JSON.parse(forbidden.text).message).toBe("forbidden");
+  });
+  test("GET /user test get all users route only with an admin role", async () => {
+    const adminUuid = uuid.v4();
+    const adminToken = signToken({
+      adminUuid,
+    });
+    expect(typeof adminToken).toBe("string");
+    const verified = (await verifyTokenAsync(adminToken)) as IJwtData;
+    expect(verified instanceof Error).toBe(false);
+    expect(verified.role).toBe("admin");
+    const getAllUsers = await request(app)
+      .get("/user")
+      .set({ authorization: `Bearer ${adminToken}` });
+    expect(getAllUsers.statusCode).toBe(200);
+    expect(JSON.parse(getAllUsers.text).users).toHaveLength(1);
+  });
   // get that user we just made make sure they were made and the get user route works
   test("GET /user/:id the user we just created in the previous test", async () => {
     // console.log("what is user id here", newUserId);
@@ -143,6 +173,50 @@ describe("testing some crud stuff on users", () => {
     expect(typeof parsed.user.token).toBe("string");
     expect(typeof parsed.user.role).toBe("string");
     newUserToken = parsed.user.token;
+  });
+  //create temp admin user to test the update as admin middleware
+  test("POST a test admin user using secret endpoint", async () => {
+    const adminUser = await request(app)
+      .post(`/user/${TEST_ADMIN_ENDPOINT}` as string)
+      .send({
+        username: "test admin",
+        password: "test pass",
+        email: "test admin email",
+      });
+    const parsed = JSON.parse(adminUser.text).user as IUser;
+    expect(adminUser.statusCode).toBe(201);
+    expect(typeof parsed._id).toBe("string");
+    adminUserId = parsed._id;
+    expect(parsed.role).toBe("admin");
+    adminToken = parsed.token;
+  });
+  // update user route test
+  test("PUT /user/:id update a user as an admin", async () => {
+    const update = await request(app)
+      .put(`/user/${newUserId}`)
+      .set({ authorization: `Bearer ${adminToken}` })
+      .send({ username: "updated username", role: "superman" });
+
+    const parsed = JSON.parse(update.text).user as IUser;
+    expect(update.statusCode).toBe(200);
+    expect(parsed.role).toBe("superman");
+  });
+  test("PUT /user/:id update the user with blank token get 401 status code", async () => {
+    const updateRes = await request(app)
+      .put(`/user/${newUserId}`)
+      .set({ authorization: `Bearer ` })
+      .send({
+        username: "updated username",
+        email: "updated email",
+      });
+    // console.log(
+    //   "\x1b[33m",
+    //   "update res with malformed token \n",
+    //   JSON.stringify(updateRes, null, 2),
+    //   "\x1b[00m"
+    // );
+    expect(updateRes.statusCode).toBe(401);
+    expect(JSON.parse(updateRes.text).error).toBe("not authenticated");
   });
   // update user route test
   test("PUT /user/:id update the user with malformed token get jwt malformed error", async () => {
@@ -230,6 +304,11 @@ describe("testing some crud stuff on users", () => {
     expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
   });
   // login test
+  test("POST /user/login test the login route without a password or email and get 422", async () => {
+    const noLogin = await request(app).post("/user/login");
+    expect(noLogin.statusCode).toBe(422);
+    expect(JSON.parse(noLogin.text).error).toBe("unprocessable entity");
+  });
   test("POST /user/login test the login route and we also return a new token", async () => {
     const loginRes = await request(app).post("/user/login").send({
       email: "updated email",
@@ -245,6 +324,8 @@ describe("testing some crud stuff on users", () => {
     const parsed = JSON.parse(loginRes.text);
     expect(typeof parsed.user.token).toBe("string");
   });
+  // TODO: test the user forgot and user change password functions
+  // test("POST /user/forgot")
   // login test incorrect credentials error
   test("POST /user/login test with garbage email the login errors appear", async () => {
     const badCreds = await request(app).post("/user/login").send({
@@ -262,7 +343,8 @@ describe("testing some crud stuff on users", () => {
     expect(badCreds.statusCode).toBe(400);
     expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
   });
-  test("delete the user we just made with the mongo client", async () => {
+  test("delete the user we just made with the mongoose client", async () => {
     await User.findOneAndDelete({ _id: newUserId });
+    await User.findOneAndDelete({ _id: adminUserId });
   });
 });

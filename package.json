@@ -6,14 +6,14 @@
   "scripts": {
     "clear:jest": "jest --clearCache",
     "test:config": "jest --showConfig",
-    "test": "NODE_ENV=test jest --verbose --detectOpenHandles --watchAll",
-    "test:ci": "jest --verbose --detectOpenHandles",
+    "test": "ENV_TXT=$(cat env.txt) NODE_ENV=test jest --verbose --detectOpenHandles --watchAll --coverage",
+    "test:ci": "jest --verbose --detectOpenHandles --coverage",
     "tsw": "tsc -w",
     "read:env": "node dist/utils/readEnv.js",
     "tsc": "tsc",
     "start": "sh dev.sh",
     "db:sandbox": "SUPER_SECRET=$(cat supersecret.txt) node dist/db/utils/db-sandbox.js",
-    "concurrent": "SECRET=$(cat secret.txt) EXPIRATION=$(cat expiration.txt) NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
+    "concurrent": "ENV_TXT=$(cat env.txt) NODE_ENV=development concurrently \"tsc -w\" \"cd dist; nodemon -L index.js\""
   },
   "repository": {
     "type": "git",

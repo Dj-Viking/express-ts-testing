@@ -45,65 +45,31 @@ exports.UserService = {
             }
             catch (error) {
                 if (error.errors) {
-                    switch (true) {
-                        case error.errors.email: {
-                            throw {
-                                email: error.errors,
-                            };
-                        }
-                        case error.errors.username: {
-                            throw {
-                                username: error.errors,
-                            };
-                        }
-                        case error.errors.password: {
-                            throw {
-                                password: error.errors,
-                            };
-                        }
-                        default:
-                            throw error;
-                    }
+                    throw error;
                 }
-                throw error;
             }
         });
     },
     updateUserById: function (args) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { _id, username, email } = args;
-            try {
-                const updateObj = {
-                    username,
-                    email,
-                };
-                switch (true) {
-                    case !_id:
-                        throw { id: `must provide an id to update a user` };
-                    case !username:
-                        delete updateObj.username;
-                        break;
-                    case !email:
-                        delete updateObj.email;
-                        break;
-                    default:
-                        break;
-                }
-                const updatedUser = yield models_1.User.findByIdAndUpdate(_id, updateObj, {
-                    new: true,
-                    runValidators: true,
-                });
-                return {
-                    _id: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id,
-                    username: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.username,
-                    email: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.email,
-                    createdAt: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.createdAt,
-                    updatedAt: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.updatedAt,
-                };
-            }
-            catch (error) {
-                throw error.id || error;
-            }
+            const { role, _id, username, email } = args;
+            const updateObj = {
+                username,
+                email,
+                role,
+            };
+            const updatedUser = yield models_1.User.findByIdAndUpdate(_id, updateObj, {
+                new: true,
+                runValidators: true,
+            });
+            return {
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                createdAt: updatedUser.createdAt,
+                updatedAt: updatedUser.updatedAt,
+                role: updatedUser.role,
+            };
         });
     },
 };

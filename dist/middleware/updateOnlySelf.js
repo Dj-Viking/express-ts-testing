@@ -11,25 +11,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateOnlyAsSelfOrAdmin = void 0;
 function updateOnlyAsSelfOrAdmin(req, res, next) {
-    var _a, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { params } = req;
             switch (true) {
-                case ((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) === "admin":
+                case req.user.role === "admin":
                     return next();
-                case params.id !== ((_b = req.user) === null || _b === void 0 ? void 0 : _b._id) && ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) === "user": {
+                case params.id !== req.user._id && req.user.role === "user": {
                     return res.status(403).json({ message: "forbidden" });
                 }
             }
             return next();
         }
-        catch (error) {
-            console.error(error);
-            return res.status(500).json({
-                message: "Oops sorry this request could not be processed, please try again later.",
-            });
-        }
+        catch (error) { }
     });
 }
 exports.updateOnlyAsSelfOrAdmin = updateOnlyAsSelfOrAdmin;

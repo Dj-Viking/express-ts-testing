@@ -17,7 +17,12 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
-const { EXPIRED_TOKEN, INVALID_SIGNATURE } = process.env;
+const signToken_1 = require("../utils/signToken");
+const verifyTokenAsync_1 = require("../utils/verifyTokenAsync");
+const readEnv_1 = require("../utils/readEnv");
+const uuid = require("uuid");
+(0, readEnv_1.readEnv)();
+const { EXPIRED_TOKEN, INVALID_SIGNATURE, TEST_ADMIN_ENDPOINT } = process.env;
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -27,6 +32,8 @@ afterEach((done) => {
 const app = (0, app_1.default)();
 let newUserId = null;
 let newUserToken = null;
+let adminUserId = null;
+let adminToken = null;
 describe("testing some crud stuff on users", () => {
     test("POST /user request to create user without username", () => __awaiter(void 0, void 0, void 0, function* () {
         const noUsername = yield (0, supertest_1.default)(app).post("/user").send({
@@ -94,6 +101,28 @@ describe("testing some crud stuff on users", () => {
             .set({ authorization: `Bearer kdfkdjf` });
         expect(getUser.statusCode).toBe(403);
     }));
+    test("GET /user test get all users as non admin should get 403", () => __awaiter(void 0, void 0, void 0, function* () {
+        const forbidden = yield (0, supertest_1.default)(app)
+            .get("/user")
+            .set({ authorization: `Bearer ${newUserToken}` });
+        expect(forbidden.statusCode).toBe(403);
+        expect(JSON.parse(forbidden.text).message).toBe("forbidden");
+    }));
+    test("GET /user test get all users route only with an admin role", () => __awaiter(void 0, void 0, void 0, function* () {
+        const adminUuid = uuid.v4();
+        const adminToken = (0, signToken_1.signToken)({
+            adminUuid,
+        });
+        expect(typeof adminToken).toBe("string");
+        const verified = (yield (0, verifyTokenAsync_1.verifyTokenAsync)(adminToken));
+        expect(verified instanceof Error).toBe(false);
+        expect(verified.role).toBe("admin");
+        const getAllUsers = yield (0, supertest_1.default)(app)
+            .get("/user")
+            .set({ authorization: `Bearer ${adminToken}` });
+        expect(getAllUsers.statusCode).toBe(200);
+        expect(JSON.parse(getAllUsers.text).users).toHaveLength(1);
+    }));
     test("GET /user/:id the user we just created in the previous test", () => __awaiter(void 0, void 0, void 0, function* () {
         const getUserRes = yield (0, supertest_1.default)(app)
             .get(`/user/${newUserId}`)
@@ -118,6 +147,41 @@ describe("testing some crud stuff on users", () => {
         expect(typeof parsed.user.token).toBe("string");
         expect(typeof parsed.user.role).toBe("string");
         newUserToken = parsed.user.token;
+    }));
+    test("POST a test admin user using secret endpoint", () => __awaiter(void 0, void 0, void 0, function* () {
+        const adminUser = yield (0, supertest_1.default)(app)
+            .post(`/user/${TEST_ADMIN_ENDPOINT}`)
+            .send({
+            username: "test admin",
+            password: "test pass",
+            email: "test admin email",
+        });
+        const parsed = JSON.parse(adminUser.text).user;
+        expect(adminUser.statusCode).toBe(201);
+        expect(typeof parsed._id).toBe("string");
+        adminUserId = parsed._id;
+        expect(parsed.role).toBe("admin");
+        adminToken = parsed.token;
+    }));
+    test("PUT /user/:id update a user as an admin", () => __awaiter(void 0, void 0, void 0, function* () {
+        const update = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ${adminToken}` })
+            .send({ username: "updated username", role: "superman" });
+        const parsed = JSON.parse(update.text).user;
+        expect(update.statusCode).toBe(200);
+        expect(parsed.role).toBe("superman");
+    }));
+    test("PUT /user/:id update the user with blank token get 401 status code", () => __awaiter(void 0, void 0, void 0, function* () {
+        const updateRes = yield (0, supertest_1.default)(app)
+            .put(`/user/${newUserId}`)
+            .set({ authorization: `Bearer ` })
+            .send({
+            username: "updated username",
+            email: "updated email",
+        });
+        expect(updateRes.statusCode).toBe(401);
+        expect(JSON.parse(updateRes.text).error).toBe("not authenticated");
     }));
     test("PUT /user/:id update the user with malformed token get jwt malformed error", () => __awaiter(void 0, void 0, void 0, function* () {
         const updateRes = yield (0, supertest_1.default)(app)
@@ -178,6 +242,11 @@ describe("testing some crud stuff on users", () => {
         expect(JSON.parse(updateRes.text).user.username).toBe("updated username");
         expect(JSON.parse(updateRes.text).user.email).toBe("updated email");
     }));
+    test("POST /user/login test the login route without a password or email and get 422", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noLogin = yield (0, supertest_1.default)(app).post("/user/login");
+        expect(noLogin.statusCode).toBe(422);
+        expect(JSON.parse(noLogin.text).error).toBe("unprocessable entity");
+    }));
     test("POST /user/login test the login route and we also return a new token", () => __awaiter(void 0, void 0, void 0, function* () {
         const loginRes = yield (0, supertest_1.default)(app).post("/user/login").send({
             email: "updated email",
@@ -203,8 +272,9 @@ describe("testing some crud stuff on users", () => {
         expect(badCreds.statusCode).toBe(400);
         expect(JSON.parse(badCreds.text).error).toBe("incorrect credentials");
     }));
-    test("delete the user we just made with the mongo client", () => __awaiter(void 0, void 0, void 0, function* () {
+    test("delete the user we just made with the mongoose client", () => __awaiter(void 0, void 0, void 0, function* () {
         yield models_1.User.findOneAndDelete({ _id: newUserId });
+        yield models_1.User.findOneAndDelete({ _id: adminUserId });
     }));
 });
 //# sourceMappingURL=user.test.js.map

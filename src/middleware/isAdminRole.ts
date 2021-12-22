@@ -7,14 +7,9 @@ export async function isAdminRole(
   next: NextFunction
 ): Promise<Response | void> {
   try {
-    if (!req.user) return res.status(401).json({ message: "unauthorized" });
+    // @ts-expect-error auth middleware will verify req user exists
     if (req.user.role !== "admin")
       return res.status(403).json({ message: "forbidden" });
     return next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: "oops! something went wrong, please try again later." });
-  }
+  } catch (error) {}
 }

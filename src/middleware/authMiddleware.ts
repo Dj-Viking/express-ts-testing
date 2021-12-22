@@ -7,7 +7,8 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction
 ): Promise<Response | void> {
-  const token = req?.headers?.authorization?.split(" ")[1] || null;
+  // @ts-expect-error the header should be defined
+  const token = req.headers.authorization.split(" ")[1] || null;
   if (!token) return res.status(401).json({ error: "not authenticated" });
   //verify token
   verifyTokenAsync(token)
@@ -19,8 +20,5 @@ export async function authMiddleware(
         return next();
       }
     })
-    .catch((error) => {
-      console.error("error when verifying token in middleware", error);
-      return res.status(500).json({ error: error.message || error });
-    });
+    .catch();
 }

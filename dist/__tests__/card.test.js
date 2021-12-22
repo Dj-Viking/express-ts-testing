@@ -17,7 +17,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 const app_1 = __importDefault(require("../app"));
 const constants_1 = require("../constants");
-const models_2 = require("../models");
 beforeEach((done) => {
     mongoose_1.default.connect(constants_1.LOCAL_DB_URL, {}, () => done());
 });
@@ -30,6 +29,8 @@ let newUserId = null;
 let newUserToken = null;
 let secondUserId = null;
 let secondUserToken = null;
+let noRoleUserId = null;
+let noRoleUserToken = null;
 describe("card CRUD stuff", () => {
     test("POST /user create a new user to start adding cards to their library", () => __awaiter(void 0, void 0, void 0, function* () {
         const createRes = yield (0, supertest_1.default)(app).post("/user").send({
@@ -42,6 +43,33 @@ describe("card CRUD stuff", () => {
         newUserId = JSON.parse(createRes.text).user._id;
         expect(typeof JSON.parse(createRes.text).user.token).toBe("string");
         newUserToken = JSON.parse(createRes.text).user.token;
+    }));
+    test("POST /user/test create a user without a role to try and create a card without the user role", () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield (0, supertest_1.default)(app).post("/user/test").send({
+            username: "no role here",
+            email: "no role here",
+            password: "no role here",
+        });
+        const parsed = JSON.parse(user.text).user;
+        expect(user.statusCode).toBe(201);
+        expect(typeof parsed.token).toBe("string");
+        noRoleUserToken = parsed.token;
+        expect(typeof parsed._id).toBe("string");
+        noRoleUserId = parsed._id;
+    }));
+    test("POST /card try to create a card as a user without a user role", () => __awaiter(void 0, void 0, void 0, function* () {
+        const noRole = yield (0, supertest_1.default)(app)
+            .post("/card")
+            .set({ authorization: `Bearer ${noRoleUserToken}` })
+            .send({
+            frontsideText: "привет",
+            frontsideLanguage: "Русский",
+            frontsidePicture: "front side picture text",
+            backsideText: "hello",
+            backsideLanguage: "English",
+            backsidePicture: "ksdjfdkj",
+        });
+        expect(noRole.statusCode).toBe(403);
     }));
     test("POST /card create a new card", () => __awaiter(void 0, void 0, void 0, function* () {
         const createCardRes = yield (0, supertest_1.default)(app)
@@ -120,8 +148,9 @@ describe("card CRUD stuff", () => {
         yield models_1.Card.findOneAndDelete({ _id: newCardId });
     }));
     test("delete the users we just made", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield models_2.User.findOneAndDelete({ _id: newUserId });
-        yield models_2.User.findOneAndDelete({ _id: secondUserId });
+        yield models_1.User.findOneAndDelete({ _id: newUserId });
+        yield models_1.User.findOneAndDelete({ _id: secondUserId });
+        yield models_1.User.findOneAndDelete({ _id: noRoleUserId });
     }));
 });
 //# sourceMappingURL=card.test.js.map

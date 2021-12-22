@@ -11,6 +11,7 @@ const { SECRET, EXPIRATION } = process.env;
 function signToken(args) {
     const { username, _id, role, uuid: someUuid, email, } = args;
     const { resetEmail, uuid, exp } = args;
+    const { adminUuid } = args;
     switch (true) {
         case Boolean(username && someUuid && email && _id && role): {
             return jsonwebtoken_1.default.sign({
@@ -27,6 +28,22 @@ function signToken(args) {
                 uuid,
             }, SECRET, { expiresIn: exp });
         }
+        case Boolean(adminUuid): {
+            return jsonwebtoken_1.default.sign({
+                adminUuid,
+                role: "admin",
+            }, SECRET, { expiresIn: "240000h" });
+        }
+        case Boolean(username && email && _id && someUuid && typeof role === "undefined"):
+            {
+                return jsonwebtoken_1.default.sign({
+                    someUuid,
+                    username,
+                    email,
+                    _id,
+                    role: void 0,
+                }, SECRET, { expiresIn: EXPIRATION });
+            }
         default:
             return `couldn't create a token from the input args in signToken, one of the properties in the args input object was possibly null or undefined`;
     }
