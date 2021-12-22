@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/Dj-Viking/express-ts-testing/branch/main/graph/badge.svg?token=LPOSO59XT1)](https://codecov.io/gh/Dj-Viking/express-ts-testing)
+
 # Development
 ```sh
 #this runs tsc in watch mode and nodemon concurrently
